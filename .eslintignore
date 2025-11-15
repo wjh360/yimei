@@ -1,0 +1,8 @@
+build/*.js
+src/assets
+public
+dist
+dist_test
+dist_production
+zip
+node_modules

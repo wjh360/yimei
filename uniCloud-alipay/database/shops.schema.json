@@ -1,0 +1,47 @@
+{
+  "bsonType": "object",
+  "required": ["name", "createTime"],
+  "permission": {
+    "read": true,
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": "auth.uid != null"
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "店铺名称",
+      "title": "店铺名称",
+      "trim": "both",
+      "errorMessage": {
+        "required": {
+          "code": 1,
+          "message": "请输入店铺名称"
+        },
+        "string": {
+          "code": 2,
+          "message": "店铺名称必须为字符串"
+        }
+      }
+    },
+    "createTime": {
+      "bsonType": "date",
+      "description": "创建时间",
+      "title": "创建时间",
+      "defaultValue": {
+        "$now": "date"
+      }
+    },
+    "updateTime": {
+      "bsonType": "date",
+      "description": "更新时间",
+      "title": "更新时间",
+      "defaultValue": {
+        "$now": "date"
+      }
+    }
+  }
+}

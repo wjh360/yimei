@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@dcloudio/vue-cli-plugin-uni": "^2.0.2-4050620250311002",
+    "sass-loader": "^16.0.5",
+    "uview-ui": "^2.0.38"
+  },
+  "dependencies": {
+    "node-xlsx": "^0.24.0"
+  }
+}

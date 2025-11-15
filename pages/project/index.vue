@@ -1,0 +1,335 @@
+<template>
+	<view class="project-management">
+		<!-- 项目列表 -->
+		<view class="project-list">
+			<view
+				class="project-card"
+				v-for="(project, index) in projects"
+				:key="index"
+			>
+				<view class="card-header">
+					<view class="icon-container">
+						<u-icon
+							name="star-fill"
+							size="28"
+							color="#fff"
+						></u-icon>
+					</view>
+					<text class="project-name">{{ project.name }}</text>
+				</view>
+
+				<!-- 操作按钮 -->
+				<view class="card-actions" v-if="isDev">
+					<u-icon
+						name="trash"
+						size="20"
+						color="#ff6b6b"
+						@click.stop="confirmDelete(project)"
+					></u-icon>
+				</view>
+			</view>
+
+			<!-- 空状态提示 -->
+			<view class="empty-state" v-if="projects.length === 0">
+				<u-icon name="bookmark" size="50" color="#c0c4cc"></u-icon>
+				<text class="empty-text">暂无项目，请添加</text>
+			</view>
+		</view>
+
+		<!-- 悬浮添加按钮 -->
+		<view class="fab-button" v-if="isDev">
+			<u-button
+				type="success"
+				shape="circle"
+				size="large"
+				@click="showAddForm"
+			>
+				<u-icon name="plus" size="24" color="#fff"></u-icon>
+			</u-button>
+		</view>
+
+		<!-- 新增项目表单弹窗 -->
+		<u-modal
+			:show="showAddPopup"
+			title="新增项目"
+			:show-cancel-button="true"
+			@confirm="addProject"
+			@cancel="showAddPopup = false"
+		>
+			<view class="modal-content">
+				<u-input
+					v-model="newProjectName"
+					placeholder="请输入项目名称"
+					border="border"
+				/>
+			</view>
+		</u-modal>
+	</view>
+</template>
+
+<script>
+export default {
+	data() {
+		return {
+			projects: [],
+			showAddPopup: false,
+			newProjectName: "",
+
+			isDev: uni.$develop,
+		};
+	},
+	onShow() {
+		this.getProjectList();
+	},
+	onLoad() {},
+	methods: {
+		navigateToProject(project) {
+			// 跳转到项目详情页或其他操作
+			uni.navigateTo({
+				url: `/pages/project/detail?id=${project.id}`,
+			});
+		},
+		getProjectList() {
+			uni.showLoading({
+				title: "加载中",
+			});
+
+			uniCloud
+				.callFunction({
+					name: "project",
+					data: {
+						type: 1,
+					},
+				})
+				.then((res) => {
+					uni.hideLoading();
+					console.log("获取项目列表结果", res.result.data);
+					if (res.result && res.result.data) {
+						this.projects = res.result.data;
+					} else {
+						this.projects = [];
+						uni.showToast({
+							title: "获取数据失败",
+							icon: "none",
+						});
+					}
+
+					//滚动到顶部
+					uni.pageScrollTo({ scrollTop: 0, duration: 300 });
+					console.log("projects", this.projects);
+				})
+				.catch((err) => {
+					uni.hideLoading();
+					console.error("调用失败", err);
+					uni.showToast({
+						title: "获取项目列表失败",
+						icon: "none",
+					});
+				});
+		},
+		showAddForm() {
+			this.newProjectName = "";
+			this.showAddPopup = true;
+		},
+		addProject() {
+			if (!this.newProjectName.trim()) {
+				uni.showToast({
+					title: "请输入项目名称",
+					icon: "none",
+				});
+				return;
+			}
+
+			uni.showLoading({
+				title: "添加中",
+			});
+
+			uniCloud
+				.callFunction({
+					name: "project",
+					data: {
+						type: 2,
+						name: this.newProjectName,
+					},
+				})
+				.then(({ result }) => {
+					uni.hideLoading();
+					console.log("添加项目结果", result);
+					if (result.code === 0) {
+						uni.showToast({
+							title: "添加成功",
+						});
+						setTimeout(() => {
+							this.getProjectList();
+						}, 500);
+					} else {
+						uni.showToast({
+							title: result.message,
+							icon: "none",
+						});
+					}
+
+					this.showAddPopup = false;
+				})
+				.catch((err) => {
+					uni.hideLoading();
+					console.error("添加失败", err);
+					uni.showToast({
+						title: "添加失败",
+						icon: "none",
+					});
+				});
+		},
+		confirmDelete(project) {
+			uni.showModal({
+				title: "确认删除",
+				content: "确定要删除该项目吗？此操作不可恢复",
+				success: (res) => {
+					if (res.confirm) {
+						this.deleteProject(project);
+					}
+				},
+			});
+		},
+		deleteProject(project) {
+			uni.showLoading({
+				title: "删除中",
+			});
+
+			uniCloud
+				.callFunction({
+					name: "project",
+					data: {
+						type: 3,
+						id: project._id,
+					},
+				})
+				.then((res) => {
+					uni.hideLoading();
+					uni.showToast({
+						title: "删除成功",
+					});
+					this.getProjectList();
+				})
+				.catch((err) => {
+					uni.hideLoading();
+					console.error("删除失败", err);
+					uni.showToast({
+						title: "删除失败",
+						icon: "none",
+					});
+				});
+		},
+	},
+};
+</script>
+
+<style lang="scss" scoped>
+.project-management {
+	height: 100vh;
+	background-color: #f5f7fa;
+	// background-image: url("https://env-00jxtjtj8hsd.normal.cloudstatic.cn/bg.png");
+	background-size: cover;
+	background-position: center;
+	position: relative;
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(
+		to bottom,
+		rgba(0, 0, 0, 0.4) 0%,
+		rgba(0, 0, 0, 0.2) 50%,
+		rgba(255, 255, 255, 0.9) 100%
+	);
+	z-index: 1;
+}
+
+.title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #ffffff;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.project-list {
+	position: relative;
+	z-index: 2;
+	padding: 20rpx;
+	padding-bottom: 150px;
+}
+
+.project-card {
+	background-color: #ffffff;
+	border-radius: 16rpx;
+	margin-bottom: 20rpx;
+	padding: 24rpx;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.project-card:active {
+	transform: scale(0.98);
+}
+
+.card-header {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+}
+
+.icon-container {
+	width: 80rpx;
+	height: 80rpx;
+	border-radius: 12rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+}
+
+.project-name {
+	font-size: 32rpx;
+	color: #333333;
+	font-weight: 500;
+	padding-left: 10rpx;
+}
+
+.card-actions {
+	display: flex;
+	align-items: center;
+}
+
+.fab-button {
+	position: fixed;
+	left: calc(50% - 24px);
+	bottom: 100rpx;
+	z-index: 999;
+	// box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content {
+	padding: 40rpx 20rpx;
+}
+
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 100rpx 0;
+}
+
+.empty-text {
+	font-size: 28rpx;
+	color: #ccc;
+	margin-top: 20rpx;
+}
+</style>
