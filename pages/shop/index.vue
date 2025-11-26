@@ -1,70 +1,74 @@
 <template>
 	<view class="shop-management">
+		<u-navbar title="店铺管理" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
+		</u-navbar>
 		<!-- 店铺列表 -->
-		<view class="shop-list">
-			<view
-				class="shop-card"
-				v-for="(shop, index) in shops"
-				:key="index"
-				@click="navigateToShop(shop)"
-			>
-				<view class="card-header">
-					<view class="icon-container">
+		<scroll-view :scroll-y="true" style="height: 100%">
+			<view class="shop-list">
+				<view
+					class="shop-card"
+					v-for="(shop, index) in shops"
+					:key="index"
+					@click="navigateToShop(shop)"
+				>
+					<view class="card-header">
+						<view
+							class="icon-container"
+							:style="{ background: getGradientColor(index) }"
+						>
+							<u-icon
+								name="bookmark-fill"
+								size="28"
+								color="#fff"
+							></u-icon>
+						</view>
+						<text class="shop-name">{{ shop.name }}</text>
+					</view>
+
+					<!-- 操作按钮 -->
+					<view class="card-actions" v-if="isDev">
 						<u-icon
-							name="bookmark-fill"
-							size="28"
-							color="#fff"
+							name="trash"
+							size="20"
+							color="#ff6b6b"
+							@click.stop="confirmDelete(shop)"
 						></u-icon>
 					</view>
-					<text class="shop-name">{{ shop.name }}</text>
 				</view>
 
-				<!-- 操作按钮 -->
-				<view class="card-actions" v-if="isDev">
-					<u-icon
-						name="trash"
-						size="20"
-						color="#ff6b6b"
-						@click.stop="confirmDelete(shop)"
-					></u-icon>
+				<!-- 空状态提示 -->
+				<view class="empty-state" v-if="shops.length === 0">
+					<u-icon name="bookmark" size="50" color="#c0c4cc"></u-icon>
+					<text class="empty-text">暂无店铺，请添加</text>
 				</view>
 			</view>
-
-			<!-- 空状态提示 -->
-			<view class="empty-state" v-if="shops.length === 0">
-				<u-icon name="bookmark" size="50" color="#c0c4cc"></u-icon>
-				<text class="empty-text">暂无店铺，请添加</text>
-			</view>
-		</view>
+			<view class="scrollBoxAfter"></view>
+		</scroll-view>
 
 		<!-- 悬浮添加按钮 -->
-		<view class="fab-button" v-if="isDev">
-			<u-button
-				type="success"
-				shape="circle"
-				size="large"
-				@click="showAddForm"
-			>
-				<u-icon name="plus" size="24" color="#fff"></u-icon>
-			</u-button>
-		</view>
+		<view class="fab-button" v-if="isDev" @click="showAddForm"> 新增 </view>
 
 		<!-- 新增店铺表单弹窗 -->
-		<u-modal
+
+		<u-popup
 			:show="showAddPopup"
-			title="新增店铺"
-			:show-cancel-button="true"
-			@confirm="addShop"
-			@cancel="showAddPopup = false"
+			mode="center"
+			:round="10"
+			closeable
+			@close="closePopup"
+			:safeAreaInsetBottom="false"
 		>
-			<view class="modal-content">
-				<u-input
-					v-model="newShopName"
-					placeholder="请输入店铺名称"
-					border="border"
-				/>
+			<view class="popup-content">
+				<view class="popup-title">新增店铺 </view>
+
+				<u-input v-model="newShopName" placeholder="请输入店铺名称">
+				</u-input>
+				<view class="popup-actions">
+					<u-button type="primary" @click="addShop">保存</u-button>
+					<u-button type="error" @click="closePopup">取消</u-button>
+				</view>
 			</view>
-		</u-modal>
+		</u-popup>
 	</view>
 </template>
 
@@ -159,7 +163,7 @@ export default {
 				.callFunction({
 					name: "shop",
 					data: {
-						type: 2,
+						type: "add",
 						name: this.newShopName,
 					},
 				})
@@ -202,6 +206,9 @@ export default {
 				},
 			});
 		},
+		closePopup() {
+			this.showAddPopup = false;
+		},
 		deleteShop(shop) {
 			uni.showLoading({
 				title: "删除中",
@@ -211,7 +218,7 @@ export default {
 				.callFunction({
 					name: "shop",
 					data: {
-						type: 3,
+						type: "del",
 						id: shop._id,
 					},
 				})
@@ -240,45 +247,11 @@ export default {
 
 <style lang="scss" scoped>
 .shop-management {
-	height: 100vh;
-	background-color: #f5f7fa;
-	// background-image: url("https://env-00jxtjtj8hsd.normal.cloudstatic.cn/bg.png");
-	background-size: cover;
-	background-position: center;
-	position: relative;
-}
-
-.overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: linear-gradient(
-		to bottom,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.2) 50%,
-		rgba(255, 255, 255, 0.9) 100%
-	);
-	z-index: 1;
-}
-
-.title {
-	font-size: 36rpx;
-	font-weight: bold;
-	color: #ffffff;
-	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.shop-list {
-	position: relative;
-	z-index: 2;
-	padding: 20rpx;
-	padding-bottom: 150px;
+	padding: 0 24rpx;
 }
 
 .shop-card {
-	background-color: #ffffff;
+	background-color: rgba($color: #ffffff, $alpha: 0.4);
 	border-radius: 16rpx;
 	margin-bottom: 20rpx;
 	padding: 24rpx;
@@ -306,7 +279,6 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(135deg, #ff9a9e, #fad0c4);
 }
 
 .shop-name {
@@ -323,9 +295,17 @@ export default {
 
 .fab-button {
 	position: fixed;
-	left: calc(50% - 24px);
+
 	bottom: 100rpx;
 	z-index: 999;
+	background: linear-gradient(135deg, #12ef0e 0%, #13581e 100%);
+	color: #fff;
+	width: 100rpx;
+	height: 100rpx;
+	line-height: 100rpx;
+	text-align: center;
+	border-radius: 50%;
+	left: calc(50% - 50rpx);
 	// box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -345,5 +325,9 @@ export default {
 	font-size: 28rpx;
 	color: #ccc;
 	margin-top: 20rpx;
+}
+
+.scrollBoxAfter {
+	height: 100px;
 }
 </style>

@@ -1,5 +1,7 @@
 <template>
 	<view class="page">
+		<u-navbar title="考勤" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
+		</u-navbar>
 		<uni-calendar
 			ref="calendar"
 			:insert="true"
@@ -77,7 +79,7 @@
 				<view class="stats-grid">
 					<view class="stat-item">
 						<view class="stat-label">本月</view>
-						<view class="stat-value primary">
+						<view class="stat-value">
 							{{ totalDays }}
 							<text class="stat-unit">天</text>
 						</view>
@@ -98,7 +100,7 @@
 					</view>
 					<view class="stat-item">
 						<view class="stat-label">实出勤</view>
-						<view class="stat-value warning">
+						<view class="stat-value primary">
 							{{ actualWorkDays }}
 							<text class="stat-unit">天</text>
 						</view>
@@ -414,7 +416,7 @@ export default {
 			const year = now.getFullYear();
 			const month = now.getMonth();
 			let prevYear = year;
-			let prevMonth = month - 1;
+			let prevMonth = month;
 
 			if (prevMonth < 0) {
 				prevMonth = 11;
@@ -438,7 +440,7 @@ export default {
 <style lang="scss" scoped>
 .page {
 	padding: 20rpx;
-	background-color: #f5f5f5;
+	// background-color: #f5f5f5;
 	// min-height: 100vh;
 }
 
@@ -514,8 +516,8 @@ export default {
 }
 
 .input-section {
-	background-color: #fff;
-	border-radius: 20rpx;
+	background-color: rgba($color: #ffffff, $alpha: 0.4);
+	border-radius: 10rpx;
 	padding: 10rpx;
 	margin: 20rpx 0;
 	display: flex;
@@ -540,8 +542,8 @@ export default {
 }
 
 .stats-card {
-	background-color: #fff;
-	border-radius: 20rpx;
+	background-color: rgba($color: #ffffff, $alpha: 0.4);
+	border-radius: 10rpx;
 	padding: 30rpx;
 }
 
@@ -595,5 +597,23 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	margin-top: 40rpx;
+}
+</style>
+
+<style lang="scss">
+.uni-calendar__backtoday {
+	display: none !important;
+}
+
+.uni-calendar__content {
+	background-color: rgba($color: #fff, $alpha: 0.4) !important;
+	.uni-calendar-item--disable {
+		background-color: rgba($color: #000000, $alpha: 0) !important;
+	}
+}
+
+.uni-calendar {
+	border-radius: 10rpx !important;
+	overflow: hidden;
 }
 </style>

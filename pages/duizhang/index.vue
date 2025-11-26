@@ -1,280 +1,169 @@
 <template>
 	<view class="container">
-		<view class="input-section input-section2">
-			<view style="width: 49%">
-				<view class="input-title">导师</view>
-				<u-input
-					v-model="teacher"
-					maxlength="10"
-					placeholder="请输入导师"
-				></u-input>
-			</view>
-			<view style="width: 49%">
-				<view class="input-title">操作</view>
-				<u-input
-					v-model="operation"
-					maxlength="10"
-					placeholder="请输入操作"
-				></u-input>
-			</view>
-		</view>
-
-		<view class="input-section">
-			<view class="input-title">请输入文本数据</view>
-			<u-textarea
-				v-model="inputText"
-				height="400rpx"
-				maxlength="100000"
-				placeholder="请输入需要解析的文本数据，每行一条记录"
-				:show-confirm-bar="false"
-				confirm-type="换行"
+		<u-navbar title="对账单" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
+		</u-navbar>
+		<scroll-view :scroll-y="parsedData.length > 0" style="height: 100%">
+			<view
+				class="input-section input-section2"
+				style="margin-top: 20rpx"
 			>
-			</u-textarea>
-			<view class="input-title" style="height: 30rpx; width: 100%"></view>
-			<u-button
-				v-if="inputText"
-				class="parse-btn"
-				type="primary"
-				@click="parseData"
-				>解析数据</u-button
-			>
-		</view>
-
-		<view class="data-section" v-if="parsedData.length > 0">
-			<view class="section-title">
-				解析结果
-				<view class="result-summary">
-					<u-tag size="mini" text="总计" type="info"></u-tag>
-					<text class="summary-text">{{
-						parsedData.length + " 条记录"
-					}}</text>
+				<view class="half-width">
+					<view class="input-title">导师</view>
+					<u-input
+						v-model="teacher"
+						maxlength="10"
+						placeholder="请输入导师"
+					></u-input>
+				</view>
+				<view class="half-width">
+					<view class="input-title">操作</view>
+					<u-input
+						v-model="operation"
+						maxlength="10"
+						placeholder="请输入操作"
+					></u-input>
 				</view>
 			</view>
 
-			<view class="table-container">
-				<view class="table-header">
-					<text class="header-item" style="flex: 0.5">时间</text>
-					<text class="header-item" style="flex: 0.5">导师</text>
-					<text class="header-item shop-name-header">店铺</text>
-					<text class="header-item" style="flex: 1">顾客</text>
-					<text class="header-item" style="flex: 1">项目</text>
-					<text class="header-item" style="flex: 1">业绩</text>
-					<text class="header-item" style="flex: 1">回款</text>
-					<text class="header-item" style="flex: 1">分成</text>
-					<text class="header-item" style="flex: 1">咨询</text>
-					<text class="header-item" style="flex: 1">操作</text>
-					<text class="header-item" style="flex: 1">商务</text>
-					<text class="header-item" style="flex: 1">管理</text>
-				</view>
+			<view class="input-section">
+				<view class="input-title">请输入文本数据</view>
+				<u-textarea
+					v-model="inputText"
+					height="200rpx"
+					maxlength="100000"
+					placeholder="请输入需要解析的文本数据，每行一条记录"
+					:show-confirm-bar="false"
+					confirm-type="换行"
+				>
+				</u-textarea>
 
 				<view
-					v-for="(item, index) in parsedData"
-					:key="index"
-					:class="[
-						'table-row',
-						index % 2 !== 0 ? 'highlight-row' : '',
-					]"
+					v-if="inputText"
+					class="parse-btn"
+					type="primary"
+					@click="parseData"
+					>解析数据</view
 				>
-					<view
-						class="table-cell"
-						style="flex: 0.5"
-						@tap="editField(item, 'date', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.date ? 'empty-cell' : '',
-							]"
-							>{{ item.date || "-" }}</text
-						>
+			</view>
+
+			<view class="data-section" v-if="parsedData.length > 0">
+				<view class="section-title">
+					解析结果
+					<view class="result-summary">
+						<u-tag size="mini" text="总计" type="info"></u-tag>
+						<text class="summary-text">{{
+							parsedData.length + " 条记录"
+						}}</text>
 					</view>
-					<view
-						class="table-cell"
-						style="flex: 0.5"
-						@tap="editField(item, 'teacher', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.teacher ? 'empty-cell' : '',
-							]"
-							>{{ item.teacher || "-" }}</text
-						>
+				</view>
+
+				<view class="table-container">
+					<view class="table-header">
+						<text class="header-item full-flex">时间</text>
+						<text class="header-item full-flex">店铺</text>
+						<text class="header-item full-flex">顾客</text>
+						<text class="header-item full-flex">项目</text>
+						<text class="header-item full-flex">业绩</text>
+						<text class="header-item full-flex">回款</text>
+						<text class="header-item full-flex">管理</text>
 					</view>
+
 					<view
-						class="table-cell shop-name-cell"
-						@tap="editField(item, 'shopName', index)"
+						v-for="(item, index) in parsedData"
+						:key="index"
+						:class="[
+							'table-row',
+							index % 2 !== 0 ? 'highlight-row' : '',
+							{
+								isErrName:
+									item.customer && item.customer.length > 3,
+							},
+						]"
 					>
-						<text
-							:class="[
-								'cell-text',
-								!item.shopName ? 'empty-cell' : '',
-							]"
-							>{{ item.shopName || "-" }}</text
+						<view
+							class="table-cell"
+							v-for="edItem in edList"
+							:key="edItem"
+							@tap="editField(item, edItem, index)"
+							:class="[filterRefund(item[edItem], edItem)]"
 						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'customer', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.customer ? 'empty-cell' : '',
-							]"
-							>{{ item.customer || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'project', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.project ? 'empty-cell' : '',
-							]"
-							>{{ item.project || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'performance', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.performance ? 'empty-cell' : '',
-							]"
-							>{{ item.performance || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'refund', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.refund ? 'empty-cell' : '',
-							]"
-							>{{ item.refund || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'share', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.share ? 'empty-cell' : '',
-							]"
-							>{{ item.share || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'consultation', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.consultation ? 'empty-cell' : '',
-							]"
-							>{{ item.consultation || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'operation', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.operation ? 'empty-cell' : '',
-							]"
-							>{{ item.operation || "-" }}</text
-						>
-					</view>
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField(item, 'business', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.business ? 'empty-cell' : '',
-							]"
-							>{{ item.business || "-" }}</text
-						>
-					</view>
-					<view class="table-cell" style="flex: 1">
-						<u-button
-							size="mini"
-							type="error"
-							@click="deleteRow(index)"
-							>删除</u-button
-						>
+							<view class="cell-text">
+								{{
+									parseFloat(item[edItem])
+										? parseFloat(item[edItem])
+										: item[edItem] || "-"
+								}}
+							</view>
+						</view>
+
+						<view class="table-cell delete-cell">
+							<view
+								class="danger cell-text"
+								@click="deleteRow(index)"
+								>删除</view
+							>
+						</view>
 					</view>
 				</view>
 			</view>
-		</view>
 
-		<view class="input-section" v-if="parsedData.length > 0">
-			<view class="input-title">总业绩</view>
-			<u-textarea
-				v-model="allYeji"
-				:auto-height="true"
-				maxlength="1000"
-				placeholder="请输入总业绩"
+			<view
+				class="input-section flex-layout"
+				v-if="parsedData.length > 0"
 			>
-			</u-textarea>
-		</view>
+				<view class="flex-1 flex2">
+					<view class="input-title title-small">总业绩</view>
+					<u-textarea
+						v-model="allYeji"
+						:auto-height="true"
+						maxlength="1000"
+						placeholder="请输入总业绩"
+					>
+					</u-textarea>
+				</view>
 
-		<view class="input-section" v-if="parsedData.length > 0">
-			<view class="input-title">总回款</view>
-			<u-textarea
-				v-model="allHuiKuan"
-				:auto-height="true"
-				maxlength="1000"
-				placeholder="请输入总回款"
-			>
-			</u-textarea>
-		</view>
+				<view class="flex-1 margin-left-10 flex2">
+					<view class="input-title title-small">总回款</view>
+					<u-textarea
+						v-model="allHuiKuan"
+						:auto-height="true"
+						maxlength="1000"
+						placeholder="请输入总回款"
+					>
+					</u-textarea>
+				</view>
+			</view>
 
-		<view class="input-section" v-if="parsedData.length > 0">
-			<view class="input-title">备注</view>
-			<u-textarea
-				v-model="remark"
-				:auto-height="true"
-				maxlength="1000"
-				placeholder="请输入备注"
-			>
-			</u-textarea>
+			<view class="input-section" v-if="parsedData.length > 0">
+				<view class="flex2">
+					<view class="input-title">备注</view>
+					<u-textarea
+						v-model="remark"
+						:auto-height="true"
+						maxlength="1000"
+						placeholder="请输入备注"
+					>
+					</u-textarea>
+				</view>
+			</view>
+			<view class="scrollBoxAfter" v-if="parsedData.length > 0"></view>
+		</scroll-view>
+		<view
+			class="floating-btn postBtn"
+			v-if="parsedData.length > 0 && !tempFilePath"
+			@click="submitData"
+		>
+			生成
 		</view>
-
-		<view class="bottom-section" v-if="parsedData.length > 0">
-			<u-button class="submit-btn" type="success" @click="submitData"
-				>完成并生成Excel</u-button
-			>
-		</view>
-
-		<view class="bottom-section2" v-if="!!tempFilePath">
-			<u-button class="submit-btn" type="primary" @click="yulan"
-				>预览</u-button
-			>
-			<u-button class="submit-btn" type="warning" @click="fenxiang"
-				>分享</u-button
-			>
+		<view class="floating-buttons">
+			<template v-if="!!tempFilePath">
+				<view class="floating-btn preview-btn" @click="yulan">
+					预览
+				</view>
+				<view class="floating-btn share-btn" @click="fenxiang">
+					分享
+				</view>
+			</template>
 		</view>
 
 		<u-popup
@@ -283,12 +172,36 @@
 			:round="10"
 			closeable
 			@close="closePopup"
+			:safeAreaInsetBottom="false"
 		>
 			<view class="popup-content">
-				<view class="popup-title">{{ "编辑" + currentEditLabel }}</view>
-				<view class="current-field-info">{{
-					"" + baseArr[currentEditIndex] + ""
-				}}</view>
+				<view class="popup-title"
+					>{{ "编辑" + currentEditLabel }}
+				</view>
+				<view
+					v-if="currentEditField == 'shopName'"
+					style="
+						text-align: center;
+						font-size: 12px;
+						color: #f29100;
+						margin-bottom: 20rpx;
+					"
+					>(保存新的店铺名称会自动重新解析数据)</view
+				>
+				<view
+					class="current-field-info"
+					v-if="baseArr[currentEditIndex]"
+				>
+					<text>
+						{{ baseArr[currentEditIndex] }}
+					</text>
+					<view
+						class="u-buttons"
+						style=""
+						@click="addRemark(baseArr[currentEditIndex])"
+						>加到备注</view
+					>
+				</view>
 				<u-input
 					v-model="currentEditValue"
 					:placeholder="'请输入' + currentEditLabel"
@@ -305,7 +218,7 @@
 
 <script>
 // 引入私有mixin
-import duizhangMixin from "./mixin/mixin.js";
+import duizhangMixin from "./mixin.js";
 
 export default {
 	mixins: [duizhangMixin],
@@ -327,6 +240,15 @@ export default {
 			allHuiKuan: "",
 			teacher: "",
 			operation: "",
+			edList: [
+				"date",
+				"shopName",
+				"customer",
+				"project",
+				"performance",
+				"refund",
+			],
+			barBgColor: 0,
 		};
 	},
 	onShow() {
@@ -351,7 +273,24 @@ export default {
 			deep: true,
 		},
 	},
+	onPageScroll({ scrollTop }) {
+		console.log("scrollTop", scrollTop);
+	},
 	methods: {
+		scrollFn(w) {
+			console.log("w", w);
+		},
+		addRemark(val) {
+			this.remark = this.remark + val + " ";
+		},
+		filterRefund(value) {
+			if (!value) return false;
+			value = String(value);
+			if (value.indexOf("售前") > -1 && parseFloat(value))
+				return "isShouQian";
+
+			if (value.length > 3) return "dytell";
+		},
 		getShopList() {
 			// 这里应该调用云函数获取店铺列表
 			// 在uni-app中，可能需要使用uniCloud或其他方式
@@ -382,8 +321,7 @@ export default {
 		parseData() {
 			uni.showModal({
 				title: "提示",
-				content:
-					"如果当前文本中存在数据库中没有的店铺，可能造成解析数据错乱，跳转到店铺录入页面重新录入即可。",
+				content: "数据错乱，请仔细检查，可手动编辑表格",
 				success: (res) => {
 					if (res.confirm) {
 						if (!this.inputText.trim()) {
@@ -402,10 +340,7 @@ export default {
 
 						if (this.parsedData.length) {
 							uni.showToast({
-								title:
-									"解析完成，共" +
-									this.parsedData.length +
-									"条记录",
+								title: "解析完成",
 								icon: "success",
 							});
 						}
@@ -430,6 +365,15 @@ export default {
 				operation: "操作",
 				business: "商务",
 			}[field];
+			if (
+				field === "shopName" &&
+				item.customer &&
+				item.customer.length > 3
+			) {
+				// 如果存在客户名称>3 可能存在异常  用户点击店铺名称说明店铺出现解析异常  那么   currentEditValue = item.customer
+				this.currentEditValue = item.customer;
+			}
+
 			this.showEditPopup = true;
 			console.log("编辑字段:", field, "值:", this.currentEditValue);
 		},
@@ -446,6 +390,64 @@ export default {
 				title: "保存成功",
 				icon: "success",
 			});
+			this.tempFilePath = "";
+
+			if (
+				this.currentEditField === "shopName" &&
+				this.shopNames.indexOf(this.currentEditValue) < 0
+			) {
+				//如果是店铺名称 可能没有录入 需要重新录入
+
+				if (!this.currentEditValue.trim()) {
+					uni.showToast({
+						title: "请输入店铺名称",
+						icon: "none",
+					});
+					return;
+				}
+
+				uni.showLoading({
+					title: "添加中",
+				});
+
+				uniCloud
+					.callFunction({
+						name: "shop",
+						data: {
+							type: "add",
+							name: this.currentEditValue,
+						},
+					})
+					.then(({ result }) => {
+						uni.hideLoading();
+						console.log("添加店铺结果", result);
+						if (result.code === 0) {
+							// this.getShopList(true);
+							this.shopNames = [
+								this.currentEditValue,
+								...this.shopNames,
+							];
+
+							this.parsedData = [];
+							this.tempFilePath = "";
+
+							// 调用解析方法
+							this.setInit(this.inputText);
+
+							if (this.parsedData.length) {
+								uni.showToast({
+									title: "解析完成",
+									icon: "success",
+								});
+							}
+						} else {
+							uni.showToast({
+								title: result.message,
+								icon: "none",
+							});
+						}
+					});
+			}
 		},
 		saveDel() {
 			if (this.currentEditIndex >= 0 && this.currentEditField) {
@@ -474,8 +476,39 @@ export default {
 			});
 		},
 		submitData() {
+			// 检查数据 如果顾客名称>3  customer   可能存在异常 提示 请检查
+
+			let isErrName = false;
+			for (let i = 0; i < this.parsedData.length; i++) {
+				const item = this.parsedData[i];
+				if (item.customer && item.customer.length > 3) {
+					isErrName = i + 1;
+					break;
+				}
+			}
+
+			if (isErrName) {
+				uni.showModal({
+					title: "提示",
+					content: `存在异常，请检查第${isErrName}行数据，确定继续生成Excel吗？`,
+					showCancel: true,
+					confirmText: "继续",
+					success: (res) => {
+						if (res.confirm) {
+							this.postData(); // 确定按钮被点击
+							return;
+						}
+					},
+				});
+
+				return;
+			}
+
 			// 提交数据并生成Excel的逻辑
 			console.log("提交数据");
+			this.postData();
+		},
+		postData() {
 			uni.showLoading({
 				title: "保存中...",
 				icon: "none",
@@ -568,204 +601,6 @@ export default {
 };
 </script>
 
-<style>
-.container {
-	background-color: #f5f5f5;
-	padding: 20rpx;
-}
-
-.input-section {
-	background-color: #fff;
-	border-radius: 16rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-	margin-bottom: 20rpx;
-	padding: 30rpx;
-}
-
-.input-section2 {
-	align-items: center;
-	display: flex;
-	justify-content: space-between;
-}
-
-.input-title {
-	color: #333;
-	font-size: 36rpx;
-	font-weight: 700;
-	margin-bottom: 20rpx;
-}
-
-.parse-btn {
-	border-radius: 12rpx;
-	height: 80rpx;
-	line-height: 80rpx;
-}
-
-.data-section {
-	background-color: #fff;
-	border-radius: 16rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-	margin-bottom: 20rpx;
-	padding: 30rpx;
-}
-
-.section-title {
-	color: #333;
-	font-size: 36rpx;
-	font-weight: 700;
-	justify-content: space-between;
-	margin-bottom: 20rpx;
-	align-items: center;
-	display: flex;
-}
-
-.result-summary {
-	background-color: #f0f8ff;
-	border-radius: 12rpx;
-	padding: 10rpx;
-	align-items: center;
-	display: flex;
-}
-
-.summary-text {
-	color: #666;
-	font-size: 28rpx;
-	margin-left: 15rpx;
-}
-
-.table-container {
-	border: 1rpx solid #eee;
-	border-radius: 12rpx;
-	overflow-x: auto;
-}
-
-.table-header {
-	background: linear-gradient(90deg, #409eff, #1a73e8);
-	color: #fff;
-	display: flex;
-	flex-wrap: nowrap;
-	font-weight: 700;
-	min-width: 2000rpx;
-	padding: 20rpx 0;
-}
-
-.shop-name-header {
-	flex: 2;
-}
-
-.header-item {
-	font-size: 24rpx;
-	overflow: hidden;
-	padding: 10rpx;
-	text-align: center;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	flex: 1;
-}
-
-.table-row {
-	border-bottom: 1rpx solid #eee;
-	display: flex;
-	flex-wrap: nowrap;
-	min-width: 2000rpx;
-	transition: background-color 0.2s;
-}
-
-.table-row.highlight-row {
-	background-color: #e6f7ff;
-}
-
-.table-row:hover {
-	background-color: #f9f9f9;
-}
-
-.table-cell {
-	align-items: center;
-	border-bottom: 1rpx solid #999;
-	border-right: 1rpx solid #999;
-	display: flex;
-	justify-content: center;
-	text-align: center;
-	flex: 1;
-	font-size: 22rpx;
-	padding: 10rpx;
-}
-
-.shop-name-cell {
-	justify-content: start;
-	overflow: hidden;
-	text-align: left;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.cell-text {
-	border-radius: 6rpx;
-	padding: 8rpx 12rpx;
-	transition: all 0.2s;
-	word-break: break-all;
-}
-
-.cell-text:hover {
-	background-color: #e6f7ff;
-	transform: scale(1.05);
-}
-
-.empty-cell {
-	color: #ccc;
-	font-style: italic;
-}
-
-.action-cell {
-	flex: 1;
-}
-
-.bottom-section,
-.bottom-section2 {
-	border-radius: 16rpx;
-	padding: 10rpx 30rpx;
-	text-align: center;
-}
-
-.bottom-section2 {
-	display: flex;
-	justify-content: space-around;
-	margin-bottom: 30rpx;
-}
-
-.bottom-section2 .submit-btn {
-	width: 49% !important;
-}
-
-.submit-btn {
-	border-radius: 12rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-	font-size: 32rpx;
-	height: 80rpx;
-	line-height: 80rpx;
-}
-
-.popup-content {
-	padding: 40rpx;
-	width: 650rpx;
-}
-
-.popup-title {
-	color: #333;
-	font-size: 36rpx;
-	font-weight: 700;
-	margin-bottom: 30rpx;
-	text-align: center;
-}
-
-.current-field-info {
-	margin-bottom: 30rpx;
-	text-align: center;
-}
-
-.popup-actions {
-	display: flex;
-	margin-top: 40rpx;
-	text-align: center;
-}
+<style lang="scss">
+@import "./index.scss";
 </style>

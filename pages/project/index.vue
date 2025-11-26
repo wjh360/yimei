@@ -1,69 +1,71 @@
 <template>
 	<view class="project-management">
+		<u-navbar title="项目管理" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
+		</u-navbar>
 		<!-- 项目列表 -->
-		<view class="project-list">
-			<view
-				class="project-card"
-				v-for="(project, index) in projects"
-				:key="index"
-			>
-				<view class="card-header">
-					<view class="icon-container">
+		<scroll-view :scroll-y="true" style="height: 100%">
+			<view class="project-list">
+				<view
+					class="project-card"
+					v-for="(project, index) in projects"
+					:key="index"
+					@click="navigateToProject(project)"
+				>
+					<view class="card-header">
+						<view class="icon-container">
+							<u-icon
+								name="star-fill"
+								size="28"
+								color="#fff"
+							></u-icon>
+						</view>
+						<text class="project-name">{{ project.name }}</text>
+					</view>
+
+					<!-- 操作按钮 -->
+					<view class="card-actions" v-if="isDev">
 						<u-icon
-							name="star-fill"
-							size="28"
-							color="#fff"
+							name="trash"
+							size="20"
+							color="#ff6b6b"
+							@click.stop="confirmDelete(project)"
 						></u-icon>
 					</view>
-					<text class="project-name">{{ project.name }}</text>
 				</view>
 
-				<!-- 操作按钮 -->
-				<view class="card-actions" v-if="isDev">
-					<u-icon
-						name="trash"
-						size="20"
-						color="#ff6b6b"
-						@click.stop="confirmDelete(project)"
-					></u-icon>
+				<!-- 空状态提示 -->
+				<view class="empty-state" v-if="projects.length === 0">
+					<u-icon name="bookmark" size="50" color="#c0c4cc"></u-icon>
+					<text class="empty-text">暂无项目，请添加</text>
 				</view>
 			</view>
-
-			<!-- 空状态提示 -->
-			<view class="empty-state" v-if="projects.length === 0">
-				<u-icon name="bookmark" size="50" color="#c0c4cc"></u-icon>
-				<text class="empty-text">暂无项目，请添加</text>
-			</view>
-		</view>
+			<view class="scrollBoxAfter"></view>
+		</scroll-view>
 
 		<!-- 悬浮添加按钮 -->
-		<view class="fab-button" v-if="isDev">
-			<u-button
-				type="success"
-				shape="circle"
-				size="large"
-				@click="showAddForm"
-			>
-				<u-icon name="plus" size="24" color="#fff"></u-icon>
-			</u-button>
-		</view>
+		<view class="fab-button" v-if="isDev" @click="showAddForm"> 新增 </view>
 
 		<!-- 新增项目表单弹窗 -->
-		<u-modal
+
+		<u-popup
 			:show="showAddPopup"
-			title="新增项目"
-			:show-cancel-button="true"
-			@confirm="addProject"
-			@cancel="showAddPopup = false"
+			mode="center"
+			:round="10"
+			closeable
+			@close="closePopup"
+			:safeAreaInsetBottom="false"
 		>
-			<view class="modal-content">
-				<u-input
-					v-model="newProjectName"
-					placeholder="请输入项目名称"
-					border="border"
-				/>
+			<view class="popup-content">
+				<view class="popup-title">新增项目 </view>
+
+				<u-input v-model="newProjectName" placeholder="请输入项目名称">
+				</u-input>
+				<view class="popup-actions">
+					<u-button type="primary" @click="addProject">保存</u-button>
+					<u-button type="error" @click="closePopup">取消</u-button>
+				</view>
 			</view>
-		</u-modal>
+		</u-popup>
 	</view>
 </template>
 
@@ -74,7 +76,17 @@ export default {
 			projects: [],
 			showAddPopup: false,
 			newProjectName: "",
-
+			gradientColors: [
+				"linear-gradient(135deg, #FF9A9E, #FAD0C4)",
+				"linear-gradient(135deg, #A18CD1, #FBC2EB)",
+				"linear-gradient(135deg, #FCCB90, #D57EEB)",
+				"linear-gradient(135deg, #A1C4FD, #C2E9FB)",
+				"linear-gradient(135deg, #84FAB0, #8FD3F4)",
+				"linear-gradient(135deg, #F5576C, #F093FB)",
+				"linear-gradient(135deg, #4FACFE, #00F2FE)",
+				"linear-gradient(135deg, #43E97B, #38F9D7)",
+				"linear-gradient(135deg, #FA709A, #FEE140)",
+			],
 			isDev: uni.$develop,
 		};
 	},
@@ -83,6 +95,9 @@ export default {
 	},
 	onLoad() {},
 	methods: {
+		closePopup() {
+			this.showAddPopup = false;
+		},
 		navigateToProject(project) {
 			// 跳转到项目详情页或其他操作
 			uni.navigateTo({
@@ -148,7 +163,7 @@ export default {
 				.callFunction({
 					name: "project",
 					data: {
-						type: 2,
+						type: "add",
 						name: this.newProjectName,
 					},
 				})
@@ -200,7 +215,7 @@ export default {
 				.callFunction({
 					name: "project",
 					data: {
-						type: 3,
+						type: "del",
 						id: project._id,
 					},
 				})
@@ -220,51 +235,20 @@ export default {
 					});
 				});
 		},
+		getGradientColor(index) {
+			return this.gradientColors[index % this.gradientColors.length];
+		},
 	},
 };
 </script>
 
 <style lang="scss" scoped>
 .project-management {
-	height: 100vh;
-	background-color: #f5f7fa;
-	// background-image: url("https://env-00jxtjtj8hsd.normal.cloudstatic.cn/bg.png");
-	background-size: cover;
-	background-position: center;
-	position: relative;
-}
-
-.overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: linear-gradient(
-		to bottom,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.2) 50%,
-		rgba(255, 255, 255, 0.9) 100%
-	);
-	z-index: 1;
-}
-
-.title {
-	font-size: 36rpx;
-	font-weight: bold;
-	color: #ffffff;
-	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.project-list {
-	position: relative;
-	z-index: 2;
-	padding: 20rpx;
-	padding-bottom: 150px;
+	padding: 0 24rpx;
 }
 
 .project-card {
-	background-color: #ffffff;
+	background-color: rgba($color: #ffffff, $alpha: 0.4);
 	border-radius: 16rpx;
 	margin-bottom: 20rpx;
 	padding: 24rpx;
@@ -309,10 +293,17 @@ export default {
 
 .fab-button {
 	position: fixed;
-	left: calc(50% - 24px);
+
 	bottom: 100rpx;
 	z-index: 999;
-	// box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(135deg, #12ef0e 0%, #13581e 100%);
+	color: #fff;
+	width: 100rpx;
+	height: 100rpx;
+	line-height: 100rpx;
+	text-align: center;
+	border-radius: 50%;
+	left: calc(50% - 50rpx);
 }
 
 .modal-content {
@@ -331,5 +322,9 @@ export default {
 	font-size: 28rpx;
 	color: #ccc;
 	margin-top: 20rpx;
+}
+
+.scrollBoxAfter {
+	height: 100px;
 }
 </style>

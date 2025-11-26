@@ -1,0 +1,124 @@
+.home-container {
+	// height: 100vh;
+	// background: linear-gradient(125deg, #f15729, #96f38b, #181894);
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.content {
+	position: relative;
+	z-index: 3;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	top: 250rpx;
+}
+
+.menu-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-gap: 20px;
+	padding: 10px;
+}
+
+.menu-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	opacity: 0;
+	margin-top: 40rpx;
+	user-select: none;
+
+	&.animated {
+		animation: fadeInUp 0.6s forwards;
+	}
+}
+
+.menu-icon-container {
+	width: 80px;
+	height: 80px;
+	border-radius: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+	position: relative;
+	transition: all 0.3s ease;
+	user-select: none;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: -5px;
+		left: -5px;
+		right: -5px;
+		bottom: -5px;
+		background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+		border-radius: 20px;
+		opacity: 0;
+		z-index: -1;
+		filter: blur(10px);
+	}
+
+	&:hover::before {
+		opacity: 0.7;
+	}
+}
+
+// 菜单项渐变色
+.color-1 .menu-icon-container {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.color-2 .menu-icon-container {
+	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.color-3 .menu-icon-container {
+	background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.color-4 .menu-icon-container {
+	background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.color-5 .menu-icon-container {
+	background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.color-6 .menu-icon-container {
+	background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.menu-text {
+	font-size: 14px;
+	color: #fff;
+	font-weight: 600;
+	text-align: center;
+	margin-top: 8px;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+::v-deep .u-icon {
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+	transition: all 0.3s ease;
+}
+
+.menu-item:hover ::v-deep .u-icon {
+	transform: scale(1.1);
+	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}

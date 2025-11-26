@@ -81,6 +81,8 @@ exports.main = async (event, context) => {
 
 			default: // 获取店铺列表
 				const result = await collection.get();
+				//排序 idx 降序
+				result.data.sort((a, b) => b.idx - a.idx);
 				return {
 					code: 0,
 					message: "获取店铺列表成功",

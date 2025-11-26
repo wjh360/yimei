@@ -1,66 +1,71 @@
 {
-  "easycom": {
-    "autoscan": true,
-    "custom": {
-      "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
-    }
-  },
-  "pages": [
-    {
-      "path": "pages/home/home",
-      "style": {
-        "navigationBarTitleText": "首页",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/shop/index",
-      "style": {
-        "navigationBarTitleText": "店铺",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/project/index",
-      "style": {
-        "navigationBarTitleText": "项目",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/duizhang/index",
-      "style": {
-        "navigationBarTitleText": "对账单",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/shougong/index",
-      "style": {
-        "navigationBarTitleText": "手工",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/baoxiao/index",
-      "style": {
-        "navigationBarTitleText": "报销单",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
-      "path": "pages/kaoqin/index",
-      "style": {
-        "navigationBarTitleText": "考勤",
-        "enablePullDownRefresh": false
-      }
-    }
-  ],
-  "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
-  },
-  "subPackages": []
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+		}
+	},
+	"pages": [
+		{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/shop/index",
+			"style": {
+				"navigationBarTitleText": "店铺",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/project/index",
+			"style": {
+				"navigationBarTitleText": "项目",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/duizhang/index",
+			"style": {
+				"navigationBarTitleText": "对账单",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/shougong/index",
+			"style": {
+				"navigationBarTitleText": "手工",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/baoxiao/index",
+			"style": {
+				"navigationBarTitleText": "报销单",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/kaoqin/index",
+			"style": {
+				"navigationBarTitleText": "考勤",
+				"enablePullDownRefresh": false
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8",
+		"navigationBarTextStyle": "white",
+		"navigationStyle": "custom"
+	},
+	"subPackages": []
 }

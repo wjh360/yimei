@@ -16,7 +16,7 @@ export default {
 			try {
 				this.filterTableData(n);
 			} catch (e) {
-				t.showToast({
+				uni.showToast({
 					title: "解析错误",
 					icon: "none",
 				});

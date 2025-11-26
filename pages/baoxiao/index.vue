@@ -1,180 +1,183 @@
 <template>
 	<view class="container">
-		<view class="input-section input-section2">
-			<view style="width: 49%">
-				<view class="input-title">报销人</view>
-				<u--input
-					v-model="teacher"
-					maxlength="10"
-					placeholder="请输入报销人"
-				></u--input>
-			</view>
-			<view style="width: 49%">
-				<view class="input-title">月份</view>
-				<u--input
-					v-model="month"
-					maxlength="10"
-					placeholder="请输入月份"
-				></u--input>
-			</view>
-		</view>
-
-		<view class="input-section">
-			<view class="input-title">请输入文本数据</view>
-			<u--textarea
-				v-model="inputText"
-				height="400rpx"
-				maxlength="100000"
-				placeholder="请输入需要解析的文本数据，每行一条记录"
-				:autoHeight="false"
-				:showConfirmBar="false"
-				confirmType="换行"
-			></u--textarea>
-
-			<view class="input-title" style="height: 30rpx; width: 100%"></view>
-
-			<u-button
-				v-if="inputText"
-				type="primary"
-				@click="parseData"
-				class="parse-btn"
+		<u-navbar title="报销单" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
+		</u-navbar>
+		<scroll-view :scroll-y="parsedData.length > 0" style="height: 100%">
+			<view
+				class="input-section input-section2"
+				style="margin-top: 20rpx"
 			>
-				解析数据
-			</u-button>
-		</view>
-
-		<view class="data-section" v-if="parsedData.length > 0">
-			<view class="section-title">
-				解析结果
-				<view class="result-summary">
-					<u-tag size="mini" text="总计" type="info"></u-tag>
-					<text class="summary-text"
-						>{{ parsedData.length }} 条记录</text
-					>
+				<view class="half-width">
+					<view class="input-title">报销人</view>
+					<u-input
+						v-model="teacher"
+						maxlength="10"
+						placeholder="请输入报销人"
+					></u-input>
+				</view>
+				<view class="half-width">
+					<view class="input-title">月份</view>
+					<u-input
+						v-model="month"
+						maxlength="10"
+						placeholder="请输入月份"
+					></u-input>
 				</view>
 			</view>
 
-			<view class="table-container">
-				<view class="table-header">
-					<text class="header-item" style="flex: 0.5">时间</text>
-					<text class="header-item" style="flex: 1"
-						>店名/产品/车销</text
-					>
-					<text class="header-item" style="flex: 1">费用</text>
-					<text class="header-item" style="flex: 1">报销凭证</text>
-					<text class="header-item" style="flex: 1">报销人</text>
-					<text class="header-item" style="flex: 1">操作</text>
-				</view>
+			<view class="input-section">
+				<view class="input-title">请输入文本数据</view>
+				<u-textarea
+					v-model="inputText"
+					height="200rpx"
+					maxlength="100000"
+					placeholder="请输入需要解析的文本数据，每行一条记录"
+					:autoHeight="false"
+					:show-confirm-bar="false"
+					confirm-type="换行"
+				>
+				</u-textarea>
 
 				<view
-					v-for="(item, index) in parsedData"
-					:key="index"
-					:class="[
-						'table-row',
-						index % 2 !== 0 ? 'highlight-row' : '',
-					]"
+					v-if="inputText"
+					class="parse-btn"
+					type="primary"
+					@click="parseData"
+					>解析数据</view
 				>
-					<view
-						class="table-cell"
-						style="flex: 0.5"
-						@tap="editField('date', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.date ? 'empty-cell' : '',
-							]"
+			</view>
+			<view class="data-section" v-if="parsedData.length > 0">
+				<view class="section-title">
+					解析结果
+					<view class="result-summary">
+						<u-tag size="mini" text="总计" type="info"></u-tag>
+						<text class="summary-text">{{
+							parsedData.length + " 条记录"
+						}}</text>
+					</view>
+				</view>
+
+				<view class="table-container">
+					<view class="table-header">
+						<text class="header-item" style="flex: 0.5">时间</text>
+						<text class="header-item full-flex"
+							>店名/产品/车销</text
 						>
-							{{ item.date || "-" }}
-						</text>
+						<text class="header-item full-flex">费用</text>
+						<text class="header-item full-flex">报销凭证</text>
+						<text class="header-item full-flex">报销人</text>
+						<text class="header-item full-flex">操作</text>
 					</view>
 
 					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField('msg', index)"
+						v-for="(item, index) in parsedData"
+						:key="index"
+						:class="[
+							'table-row',
+							index % 2 !== 0 ? 'highlight-row' : '',
+						]"
 					>
-						<text
-							:class="[
-								'cell-text',
-								!item.msg ? 'empty-cell' : '',
-							]"
+						<view
+							class="table-cell"
+							style="flex: 0.5"
+							@tap="editField('date', index)"
 						>
-							{{ item.msg || "-" }}
-						</text>
-					</view>
+							<text
+								:class="[
+									'cell-text',
+									!item.date ? 'empty-cell' : '',
+								]"
+							>
+								{{ item.date || "-" }}
+							</text>
+						</view>
 
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField('money', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.money ? 'empty-cell' : '',
-							]"
+						<view
+							class="table-cell full-flex"
+							@tap="editField('msg', index)"
 						>
-							{{ item.money || "-" }}
-						</text>
-					</view>
+							<text
+								:class="[
+									'cell-text',
+									!item.msg ? 'empty-cell' : '',
+								]"
+							>
+								{{ item.msg || "-" }}
+							</text>
+						</view>
 
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField('type', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.type ? 'empty-cell' : '',
-							]"
+						<view
+							class="table-cell full-flex"
+							@tap="editField('money', index)"
 						>
-							{{ item.type || "-" }}
-						</text>
-					</view>
+							<text
+								:class="[
+									'cell-text',
+									!item.money ? 'empty-cell' : '',
+								]"
+							>
+								{{ item.money || "-" }}
+							</text>
+						</view>
 
-					<view
-						class="table-cell"
-						style="flex: 1"
-						@tap="editField('name', index)"
-					>
-						<text
-							:class="[
-								'cell-text',
-								!item.name ? 'empty-cell' : '',
-							]"
+						<view
+							class="table-cell full-flex"
+							@tap="editField('type', index)"
 						>
-							{{ item.name || "-" }}
-						</text>
-					</view>
+							<text
+								:class="[
+									'cell-text',
+									!item.type ? 'empty-cell' : '',
+								]"
+							>
+								{{ item.type || "-" }}
+							</text>
+						</view>
 
-					<view class="table-cell" style="flex: 1">
-						<u-button
-							type="error"
-							size="mini"
-							@click="deleteRow(index)"
+						<view
+							class="table-cell full-flex"
+							@tap="editField('name', index)"
 						>
-							删除
-						</u-button>
+							<text
+								:class="[
+									'cell-text',
+									!item.name ? 'empty-cell' : '',
+								]"
+							>
+								{{ item.name || "-" }}
+							</text>
+						</view>
+
+						<view class="table-cell delete-cell">
+							<view
+								class="danger cell-text"
+								@click="deleteRow(index)"
+								>删除</view
+							>
+						</view>
 					</view>
 				</view>
 			</view>
-		</view>
 
-		<view class="bottom-section" v-if="parsedData.length > 0">
-			<u-button type="success" @click="submitData" class="submit-btn">
-				完成并生成Excel
-			</u-button>
-		</view>
+			<view class="scrollBoxAfter" v-if="parsedData.length > 0"></view>
+		</scroll-view>
 
-		<view class="bottom-section2" v-if="tempFilePath">
-			<u-button type="primary" @click="yulan" class="submit-btn">
-				预览
-			</u-button>
-			<u-button type="warning" @click="fenxiang" class="submit-btn">
-				分享
-			</u-button>
+		<view
+			class="floating-btn postBtn"
+			v-if="parsedData.length > 0 && !tempFilePath"
+			@click="submitData"
+		>
+			生成
+		</view>
+		<view class="floating-buttons">
+			<template v-if="!!tempFilePath">
+				<view class="floating-btn preview-btn" @click="yulan">
+					预览
+				</view>
+				<view class="floating-btn share-btn" @click="fenxiang">
+					分享
+				</view>
+			</template>
 		</view>
 
 		<u-popup
@@ -183,9 +186,12 @@
 			:round="10"
 			closeable
 			@close="closePopup"
+			:safeAreaInsetBottom="false"
 		>
 			<view class="popup-content">
-				<view class="popup-title">编辑{{ currentEditLabel }}</view>
+				<view class="popup-title"
+					>{{ "编辑" + currentEditLabel }}
+				</view>
 				<view class="current-field-info">{{
 					baseArr[currentEditIndex]
 				}}</view>
@@ -194,8 +200,8 @@
 					:placeholder="'请输入' + currentEditLabel"
 				></u--input>
 				<view class="popup-actions">
-					<u-button type="primary" @click="saveEdit"> 保存 </u-button>
-					<u-button type="error" @click="saveDel"> 删除 </u-button>
+					<u-button type="primary" @click="saveEdit">保存</u-button>
+					<u-button type="error" @click="saveDel">删除</u-button>
 				</view>
 			</view>
 		</u-popup>
@@ -220,6 +226,9 @@ export default {
 			tempFilePath: "",
 			baseArr: [],
 		};
+	},
+	onShow() {
+		this.teacher = uni.getStorageSync("teacher") || "贠清";
 	},
 	methods: {
 		parseData() {
@@ -375,133 +384,238 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .container {
-	padding: 20rpx;
+	padding: 0 24rpx;
 }
 
 .input-section {
-	margin-bottom: 30rpx;
+	background-color: rgba($color: #fff, $alpha: 0.4);
+	border-radius: 16rpx;
+	box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+	margin-bottom: 24rpx;
+	padding: 20rpx;
+	position: relative;
+	transition: box-shadow 0.3s ease;
 
-	.input-title {
-		font-size: 28rpx;
-		color: #333;
-		margin-bottom: 10rpx;
+	&:hover {
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
+	}
+
+	::v-deep .u-textarea {
+		background-color: rgba(0, 0, 0, 0) !important;
+	}
+}
+
+.input-title {
+	color: #333;
+	font-size: 28rpx;
+	font-weight: 600;
+	margin-bottom: 20rpx;
+	position: relative;
+	display: flex;
+	align-items: center;
+
+	&::before {
+		content: "";
+		display: inline-block;
+		width: 4rpx;
+		height: 24rpx;
+		background-color: #409eff;
+		margin-right: 10rpx;
+		border-radius: 2rpx;
 	}
 }
 
 .input-section2 {
+	align-items: center;
 	display: flex;
 	justify-content: space-between;
 }
 
 .parse-btn {
-	margin-top: 20rpx;
+	border-radius: 8rpx;
+	height: 80rpx;
+	line-height: 80rpx;
+	margin-top: 16rpx;
+	font-weight: 500;
+	transition: all 0.3s ease;
+	margin-top: 10rpx;
+	text-align: center;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-radius: 10rpx;
+	font-size: 24rpx;
+	color: #fff;
 }
 
 .data-section {
-	margin-top: 30rpx;
-}
-
-.section-title {
-	font-size: 32rpx;
-	font-weight: bold;
-	margin-bottom: 20rpx;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.result-summary {
-	display: flex;
-	align-items: center;
-
-	.summary-text {
-		margin-left: 10rpx;
-		font-size: 26rpx;
-		color: #666;
-	}
-}
-
-.table-container {
-	border: 1rpx solid #e0e0e0;
-	border-radius: 10rpx;
+	background-color: rgba($color: #fff, $alpha: 0.4);
+	border-radius: 16rpx;
+	box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+	margin-bottom: 24rpx;
+	padding: 0;
+	position: relative;
+	transition: box-shadow 0.3s ease;
 	overflow: hidden;
 }
 
-.table-header {
+.section-title {
+	color: #333;
+	font-size: 32rpx;
+	font-weight: 600;
+	justify-content: space-between;
+	align-items: center;
 	display: flex;
-	background-color: #f5f5f5;
-	padding: 20rpx;
-	font-weight: bold;
+	padding: 15rpx 20rpx;
+}
+
+.result-summary {
+	border-radius: 12rpx;
+	padding: 10rpx 15rpx;
+	align-items: center;
+	display: flex;
+}
+
+.summary-text {
+	color: #666;
+	font-size: 26rpx;
+	margin-left: 15rpx;
+}
+
+.table-container {
+	border: 1rpx solid #eaeaea;
+	overflow-x: auto;
+	background-color: rgba($color: #fff, $alpha: 0.3);
+}
+
+.table-header {
+	background-color: rgba($color: #fafafa, $alpha: 0.5);
+	color: #333;
+	display: flex;
+	flex-wrap: nowrap;
+	font-weight: 600;
+	padding: 20rpx 0;
 }
 
 .header-item {
-	flex: 1;
+	font-size: 24rpx;
+	overflow: hidden;
+	padding: 10rpx;
 	text-align: center;
-	font-size: 26rpx;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
 }
 
 .table-row {
+	border-bottom: 1rpx solid #f0f0f0;
 	display: flex;
-	padding: 20rpx;
-	border-bottom: 1rpx solid #e0e0e0;
-
-	&:last-child {
-		border-bottom: none;
+	flex-wrap: nowrap;
+	transition: background-color 0.2s ease;
+	background-color: rgba($color: #ffffff, $alpha: 0.5);
+	&.highlight-row {
+		background-color: rgba($color: #e6f7ff, $alpha: 0.5);
 	}
-}
-
-.highlight-row {
-	background-color: #fafafa;
 }
 
 .table-cell {
+	align-items: center;
+	border-bottom: 1rpx solid #f0f0f0;
+	border-right: 1rpx solid #f0f0f0;
+	display: flex;
+	justify-content: center;
+	text-align: center;
 	flex: 1;
+	font-size: 22rpx;
+	padding: 15rpx 0;
+
+	.danger {
+		color: #f56c6c;
+		font-weight: 500;
+	}
+}
+
+.cell-text {
+	padding: 4rpx 0;
+	word-break: break-all;
+}
+
+.empty-cell {
+	color: #c0c4cc;
+	font-style: italic;
+}
+
+.delete-cell {
+	flex: 1;
+}
+
+.floating-buttons {
+	position: fixed;
+	left: calc(50% - 180rpx);
+	bottom: 100px;
+	display: flex;
+	justify-content: space-between;
+	width: 360rpx;
+	z-index: 999;
+}
+
+.full-flex {
+	flex: 1;
+}
+
+.half-width {
+	width: 49%;
+}
+
+.scrollBoxAfter {
+	height: 100px;
+}
+
+.postBtn {
+	background: linear-gradient(135deg, #12ef0e 0%, #13581e 100%);
+	color: #fff;
+	position: fixed;
+	left: calc(50% - 50rpx);
+	bottom: 100px;
+}
+
+.preview-btn {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: #fff;
+}
+
+.share-btn {
+	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	color: #fff;
+}
+
+.floating-btn {
+	width: 100rpx;
+	height: 100rpx;
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	text-align: center;
-	min-height: 60rpx;
-
-	.cell-text {
-		font-size: 26rpx;
-		color: #333;
-	}
-
-	.empty-cell {
-		color: #999;
-	}
+	box-shadow: 2rpx 2rpx 10rpx rgba(0, 0, 0, 0.2);
+	color: #fff;
+	font-size: 24rpx;
+}
+.postBtn {
+	background: linear-gradient(135deg, #12ef0e 0%, #13581e 100%);
+	color: #fff;
+	position: fixed;
+	left: calc(50% - 50rpx);
+	bottom: 100px;
 }
 
-.bottom-section,
-.bottom-section2 {
-	margin-top: 40rpx;
-	display: flex;
-	justify-content: center;
+.preview-btn {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: #fff;
 }
 
-.bottom-section2 {
-	.submit-btn {
-		margin: 0 10rpx;
-	}
-}
-
-.submit-btn {
-	width: 80%;
-}
-
-.popup-content {
-	padding: 40rpx;
-	width: 600rpx;
-	box-sizing: border-box;
-}
-
-.popup-title {
-	font-size: 32rpx;
-	font-weight: bold;
-	text-align: center;
-	margin-bottom: 30rpx;
+.share-btn {
+	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	color: #fff;
 }
 
 .current-field-info {
@@ -513,14 +627,15 @@ export default {
 	border-radius: 8rpx;
 }
 
-.popup-actions {
-	display: flex;
-	justify-content: space-around;
-	margin-top: 40rpx;
+.half-width {
+	width: 49%;
+}
 
-	::v-deep .u-button {
-		flex: 1;
-		margin: 0 20rpx;
-	}
+.full-flex {
+	flex: 1;
+}
+
+.scrollBoxAfter {
+	height: 100px;
 }
 </style>
