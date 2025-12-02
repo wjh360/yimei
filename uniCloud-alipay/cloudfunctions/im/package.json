@@ -1,0 +1,7 @@
+{
+  "name": "im",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-push": {}
+  }
+}

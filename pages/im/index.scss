@@ -1,0 +1,116 @@
+.data-section {
+	// background-color: rgba($color: #fff, $alpha: 0.4);
+	border-radius: 16rpx;
+	box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+	margin-bottom: 24rpx;
+	padding: 0;
+	position: relative;
+	transition: box-shadow 0.3s ease;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.table-container {
+	border: 1rpx solid #eaeaea;
+	// border-radius: 12rpx;
+	overflow-x: auto;
+	// background-color: rgba($color: #fff, $alpha: 0.3);
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.table-header {
+	// background-color: rgba($color: #fafafa, $alpha: 0.5);
+	color: #333;
+	display: flex;
+	flex-wrap: nowrap;
+	font-weight: 600;
+
+	// flex: 1;
+	border-bottom: 1rpx solid #f0f0f0;
+	height: 74rpx;
+	box-sizing: border-box;
+}
+
+.table-body {
+	flex: 1;
+	height: calc(100% - 74px);
+}
+
+.header-item {
+	font-size: 24rpx;
+	overflow: hidden;
+	padding: 20rpx 0;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1.3;
+	&:nth-child(odd) {
+		flex: 0.4;
+	}
+	&:nth-child(3) {
+		flex: 0.3;
+	}
+	&:nth-child(even) {
+		border-right: 1rpx solid #f0f0f0;
+		border-left: 1rpx solid #f0f0f0;
+	}
+}
+
+.table-row {
+	border-bottom: 1rpx solid #f0f0f0;
+	display: flex;
+	flex-wrap: nowrap;
+	transition: background-color 0.2s ease;
+	// background-color: rgba($color: #ffffff, $alpha: 0.5);
+	&:nth-child(odd) {
+		// background-color: rgba($color: #e6f7ff, $alpha: 0.5);
+	}
+}
+
+.table-cell {
+	align-items: center;
+	border-bottom: 1rpx solid #f0f0f0;
+	border-right: 1rpx solid #f0f0f0;
+	display: flex;
+	justify-content: center;
+	text-align: center;
+	flex: 1.3;
+	font-size: 22rpx;
+	padding: 15rpx 0;
+	&:nth-child(odd) {
+		flex: 0.4;
+	}
+	&:nth-child(3) {
+		flex: 0.3;
+	}
+	.danger {
+		color: #f56c6c;
+		font-weight: 500;
+	}
+}
+
+.shop-name-cell {
+	justify-content: start;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cell-text {
+	padding: 4rpx 0;
+	word-break: break-all;
+}
+
+.empty-cell {
+	color: #c0c4cc;
+	font-style: italic;
+}
+
+.action-cell {
+	flex: 1;
+}

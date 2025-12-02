@@ -1,0 +1,18 @@
+{
+  "bsonType": "object",
+  "required": ["clientId"],
+  "properties": {
+    "clientId": {
+      "bsonType": "string",
+      "description": "推送客户端ID"
+    },
+    "userId": {
+      "bsonType": "string",
+      "description": "用户ID"
+    },
+    "createTime": {
+      "bsonType": "timestamp",
+      "description": "创建时间"
+    }
+  }
+}

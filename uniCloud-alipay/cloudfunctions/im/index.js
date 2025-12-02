@@ -1,187 +1,93 @@
-// 云函数入口：websocket/index.js
-'use strict';
-const db = uniCloud.database();
-
+// uniCloud-aliyun/functions/sendMessage/index.js
+const uniPush = uniCloud.getPushManager({ appId: "__UNI__2E02F3C" });
+// 自动创建集合的辅助函数
+async function ensurePushCollections() {
+	const collections = ["opendb-push-log", "opendb-device"];
+	for (const name of collections) {
+		try {
+			await db.createCollection(name);
+			console.log(`集合 ${name} 创建成功`);
+		} catch (e) {
+			// 已存在会报错，忽略即可
+		}
+	}
+}
 exports.main = async (event, context) => {
-	const {
-		action,
-		roomId,
-		userId,
-		msgList,
-		gerenjifen
-	} = event; // 前端发过来的 JSON
-	const collection = db.collection('message');
-	// 处理不同的动作
-	let existingRoom = await collection.where({
-		roomId
-	}).get();
+	const { form, message, title, to } = event;
 
-	// //  创建聊天室
-	if (action === 'createRoom') {
-		// 检查聊天室是否已存在
+	await ensurePushCollections(); // 确保集合存在
 
-		console.log(existingRoom.data);
-		if (existingRoom.data.length > 0) {
-			// 聊天室已存在，加入聊天室
-			// 添加用户到已存在的聊天室 的用户列表中 判断是否已存在
-			if (!existingRoom.data[0].users.some(user => user.userId === userId)) {
-				await collection.doc(existingRoom.data[0]._id).update({
-					users: db.command.push({
-						userId,
-						gerenjifen: 0, // 用户积分
-					}),
-				});
-			}
+	const db = uniCloud.database();
+	const collection = db.collection("push-clients");
 
-			//获取当前聊天室的人数
+	if (!to) {
+		const res = await collection.get();
 
-			existingRoom = await collection.where({
-				roomId
-			}).get();
+		// 获取所有的cleientId
+		clients = res.data.map((item) => item.clientId);
 
-
-			return {
-				code: 0,
-				message: '加入成功',
-
-				data: existingRoom.data[0]
-			};
-		} else {
-			// 创建聊天室
-			const result = await collection.add({
-				roomId,
-				users: [{
-					userId,
-					gerenjifen: 0, // 用户积分
-				}],
-				messages: [],
-				jifen: 0,
-				from: userId,
-
-			});
-			//10小时后删除房间
-			setTimeout(() => {
-				uniCloud.callFunction({
-					name: 'im',
-					data: {
-						action: 'deleteRoom',
-						roomId,
-					}
-				});
-
-			}, 10 * 60 * 60 * 1000); // 10小时 = 10 * 60 * 60 * 1000 毫秒
-
-
-			return {
-				code: 0,
-				message: '创建成功',
-				data: result
-			};
+		if (clients.includes(form)) {
+			// 发送消息 剔除掉自己
+			clients.splice(clients.indexOf(form), 1);
 		}
-
+	} else {
+		clients = to;
 	}
+	console.log("发送给:", to ? to : "所有人");
 
+	if (!title) {
+		await imChangeData(); // 更新到数据库
+	} // 否则就是普通的消息通知
 
-
-	//离开聊天室
-	if (action === 'deleteRoom') {
-		// 检查聊天室是否存在
-		const existingRoom = await collection.where({
-			roomId
-		}).get();
-
-		await collection.doc(existingRoom.data[0]._id).remove();
-		return {
-			code: 0,
-			message: '聊天室已删除',
-		};
-	}
-
-
-	//获取聊天室信息
-	if (action === 'getInfo') {
-		// 检查聊天室是否存在
-		const existingRoom = await collection.where({
-			roomId
-		}).get();
-
-		return {
-			code: 0,
-			message: '查询成功',
-			data: existingRoom.data[0]
-		};
-	}
-
-	//更新聊天室信息
-	if (action === 'update') {
-		// 检查聊天室是否存在
-
-		const existingRoom = await collection.where({
-			roomId
-		}).get();
-
-
-		// 更新个人积分 查找用户users中对应的userId
-		const userIndex = existingRoom.data[0].users.findIndex(user => user.userId === userId);
-		existingRoom.data[0].users[userIndex].gerenjifen += gerenjifen;
-
-		//循环计算所有的个人积分 相加小于0的部分就是积分池的积分
-		let all = 0
-		for (let i = 0; i < existingRoom.data[0].users.length; i++) {
-			all += existingRoom.data[0].users[i].gerenjifen;
-		}
-		existingRoom.data[0].jifen = all < 0 ? -all : 0;
-
-		existingRoom.data[0].messages = msgList;
-
-		console.log(msgList);
-
-
-
-		await collection.doc(existingRoom.data[0]._id).update({
-			users: existingRoom.data[0].users,
-			jifen: existingRoom.data[0].jifen,
-			messages: existingRoom.data[0].messages,
-		});
-
-
-
-		const newRoomInfo = await collection.where({
-			roomId
-		}).get();
-
-
-		return {
-			code: 0,
-			message: '更新成功',
-			data: newRoomInfo.data[0]
-		};
-	}
-
-	if (action === 'updateMsg') {
-
-		existingRoom.data[0].messages = msgList;
-		if (msgList.length <= 0) {
-			//清除积分
-			existingRoom.data[0].jifen = 0;
-			existingRoom.data[0].users.forEach(user => {
-				user.gerenjifen = 0;
-			});
-		}
-		await collection.doc(existingRoom.data[0]._id).update({
-			messages: existingRoom.data[0].messages,
-			jifen: existingRoom.data[0].jifen,
-			users: existingRoom.data[0].users,
-
-		});
-		return {
-			code: 0,
-			message: '更新成功',
-		};
-	}
-
-
-
-
-
+	return await uniPush.sendMessage({
+		push_clientid: clients, // 前端上传的cid
+		title: title || "修改工作计划",
+		content: message || "你有新的消息",
+		payload: {
+			action: "chat",
+			data: message || "你有新的消息",
+		},
+	});
 };
+
+async function imChangeData(message) {
+	// 更新到数据库
+	try {
+		//解析message
+		const data = JSON.parse(message);
+		//链接 im-data 表
+		const imData = db.collection("im-data");
+
+		// 获取年月 // 2022-08-01=>2022-08
+
+		const yearMonth = data.time.split("-").slice(0, 2).join("-");
+
+		// 查询是否存在
+		const res = await imData
+			.where({
+				time: data.time,
+			})
+			.get();
+		if (res.data.length === 0) {
+			//插入数据
+			await imData.add({
+				...data,
+				updateTime: new Date().getTime(),
+				yearMonth,
+			});
+		} else {
+			//更新数据
+			await imData
+				.where({
+					time: data.time,
+				})
+				.update({
+					...data,
+					updateTime: new Date().getTime(),
+					yearMonth,
+				});
+		}
+	} catch (e) {
+		console.log(e);
+	}
+}

@@ -58,6 +58,20 @@
 				"navigationBarTitleText": "考勤",
 				"enablePullDownRefresh": false
 			}
+		},
+		{
+			"path": "pages/im/index",
+			"style": {
+				"navigationBarTitleText": "im",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false
+			}
 		}
 	],
 	"globalStyle": {

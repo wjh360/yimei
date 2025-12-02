@@ -1,5 +1,5 @@
 {
 	"vueCompilerOptions": {
-		"globalTypesPath": "./node_modules/vue/dist/vue.d.ts"
+		"globalTypesPath": "*.ts"
 	}
 }

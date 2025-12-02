@@ -173,6 +173,9 @@
 			closeable
 			@close="closePopup"
 			:safeAreaInsetBottom="false"
+			:customStyle="{
+				width: '80%',
+			}"
 		>
 			<view class="popup-content">
 				<view class="popup-title"

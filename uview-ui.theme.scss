@@ -82,32 +82,35 @@ page {
 	}
 }
 
-.u-popup__content {
-	width: 80%;
-}
 .popup-content {
-	padding: 30rpx;
+	padding: 30rpx !important;
 	// width: 100%;
 	background-color: #fff;
 	border-radius: 16rpx;
 	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+	padding-bottom: 20rpx !important;
 }
 
 .popup-title {
 	color: #333;
 	font-size: 32rpx;
 	font-weight: 600;
-	margin-bottom: 30rpx;
+	margin-bottom: 20rpx;
 	text-align: center;
 	padding-bottom: 15rpx;
 	border-bottom: 1rpx solid #f0f0f0;
 }
 .popup-actions {
 	display: flex;
-	margin-top: 40rpx;
+	margin-top: 30rpx;
 	text-align: center;
 
 	.u-button {
 		width: 160rpx !important;
 	}
+}
+
+.u-notify__warpper {
+	text-align: left !important;
+	justify-content: start !important;
 }

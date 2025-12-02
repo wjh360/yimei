@@ -1,6 +1,7 @@
 {
 	"devDependencies": {
 		"sass-loader": "^16.0.5",
-		"uview-ui": "^2.0.38"
+		"uview-ui": "^2.0.38",
+		"vue-inset-loader": "^1.2.6"
 	}
 }

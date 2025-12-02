@@ -3,6 +3,7 @@ import App from "./App";
 import uView from "uview-ui";
 import store from "./store";
 
+import "./static/utils/socket.js"; // 引入 socket.js 文件
 Vue.config.productionTip = false;
 
 Vue.use(uView);
@@ -19,6 +20,16 @@ switch (proType) {
 	case "develop":
 		uni.$develop = true;
 		break;
+}
+// #endif
+
+//#ifndef MP-WEIXIN
+
+if (process.env.NODE_ENV === "development") {
+	// 开发环境
+	Vue.prototype.$env = "dev";
+	uni.$develop = true;
+	console.log("当前环境为开发环境", process.env.NODE_ENV);
 }
 // #endif
 

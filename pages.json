@@ -58,8 +58,36 @@
 				"navigationBarTitleText": "考勤",
 				"enablePullDownRefresh": false
 			}
+		},
+		{
+			"path": "pages/im/index",
+			"style": {
+				"navigationBarTitleText": "im",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/userList/index",
+			"style": {
+				"navigationBarTitleText": "用户列表",
+				"enablePullDownRefresh": false
+			}
 		}
 	],
+	"insetLoader": {
+		"config": {
+			"notify": "<u-notify ref='uNotify' message='通知' bgColor='#fa3534' />"
+		},
+		"label": ["notify"],
+		"rootEle": "view"
+	},
 	"globalStyle": {
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",

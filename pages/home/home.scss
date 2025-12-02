@@ -10,11 +10,12 @@
 .content {
 	position: relative;
 	z-index: 3;
-	padding: 20px;
+	// padding: 20px;
 	display: flex;
 	flex-direction: column;
 	flex: 1;
-	top: 250rpx;
+	// height: 100vh;
+	// top: 250rpx;
 }
 
 .menu-grid {
@@ -93,6 +94,13 @@
 .color-6 .menu-icon-container {
 	background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
 }
+.color-7 .menu-icon-container {
+	background: linear-gradient(135deg, #66eaa3 0%, #5c6907 100%);
+}
+
+.color-8 .menu-icon-container {
+	background: linear-gradient(135deg, #0b9811 0%, #00f2fe 100%);
+}
 
 .menu-text {
 	font-size: 14px;
@@ -121,4 +129,31 @@
 .menu-item:hover ::v-deep .u-icon {
 	transform: scale(1.1);
 	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.floating-login-btn {
+	position: fixed;
+	bottom: 100rpx;
+	right: 50rpx;
+	width: 120rpx;
+	height: 120rpx;
+	border-radius: 60rpx;
+	// background: linear-gradient(135deg, #ea9966 0%, #4ba264 100%);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 8rpx 16rpx rgba(102, 126, 234, 0.3);
+	z-index: 99;
+	transition: all 0.3s ease;
+
+	text {
+		color: #fff;
+		font-size: 20rpx;
+		margin-top: 5rpx;
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
 }
