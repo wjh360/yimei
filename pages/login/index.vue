@@ -4,11 +4,7 @@
 		<view class="content">
 			<view class="logo-section">
 				<view class="logo-container">
-					<image
-						src="https://env-00jxtjtj8hsd.normal.cloudstatic.cn/c8656bb3-c4b7-4b0b-ae03-366577e1af35.png"
-						mode="aspectFit"
-						class="logo"
-					></image>
+					<image :src="baseImg" mode="aspectFit" class="logo"></image>
 				</view>
 				<text class="app-name">卿呀</text>
 			</view>
@@ -31,7 +27,7 @@
 							@chooseavatar="onChooseAvatar"
 						>
 							<image
-								:src="avatarUrl || '/static/logo.png'"
+								:src="avatarUrl || baseImg"
 								mode="aspectFill"
 								class="avatar-image"
 							/>
@@ -65,6 +61,8 @@ export default {
 			code: "",
 			openid: "",
 			session_key: "",
+			baseImg:
+				"https://env-00jxtjtj8hsd.normal.cloudstatic.cn/c8656bb3-c4b7-4b0b-ae03-366577e1af35.png",
 		};
 	},
 	onShow() {
@@ -101,9 +99,7 @@ export default {
 				// 判断用户是否已经绑定微信
 				uni.setStorageSync("userInfo", userInfo);
 				uni.setStorageSync("token", userInfo.token);
-				uni.redirectTo({
-					url: "/pages/home/home",
-				});
+
 				console.log("user ", userInfo.cid);
 				console.log("cur ", uni.getStorageSync("cid"));
 				//userInfo.cid 转为数组
@@ -126,7 +122,10 @@ export default {
 
 					console.log("update ", asd);
 				}
-
+				uni.showToast({ title: "登录成功" });
+				setTimeout(() => {
+					uni.navigateBack();
+				}, 1000);
 				return;
 			} else {
 				this.openid = userData.result.openid;
@@ -167,51 +166,12 @@ export default {
 			// 上传头像到后台
 			// this.uploadAvatar(e.detail.avatarUrl);
 			console.log("用户选择头像：", e);
-			this.upload(e.detail.avatarUrl);
-		},
-
-		async upload(avatarUrl) {
-			// const downloadRes = await new Promise((resolve, reject) => {
-			// 	uni.downloadFile({
-			// 		url: avatarUrl,
-			// 		success: (res) => resolve(res),
-			// 		fail: (err) => reject(err),
-			// 	});
-			// });
-
-			//获取后缀
-			const fileExt = avatarUrl.split(".").pop();
-
-			try {
-				// console.log("Uploading file:", file);
-				// 上传文件到云存储
-				const uploadResult = await uniCloud.uploadFile({
-					filePath: avatarUrl,
-					cloudPath: `image/${Date.now()}.${fileExt}`,
-					fileType: "image",
-				});
-
-				// 调用云函数获取公开可访问的URL
-				const { result } = await uniCloud.callFunction({
-					name: "uploadFile",
-					data: {
-						fileID: uploadResult.fileID,
-					},
-				});
-
-				if (result.code === 0) {
-					console.log("Public URL:", result.data.publicURL);
-					this.avatarUrl = result.data.publicURL;
-				} else {
-					throw new Error(result.message);
-				}
-			} catch (error) {
-				console.error("Upload failed:", error);
-				uni.showToast({
-					title: "上传失败，请重试",
-					icon: "none",
-				});
-			}
+			uni.$uploadFile({
+				filePath: e.detail.avatarUrl,
+				success: async (fileUrl) => {
+					this.avatarUrl = fileUrl;
+				},
+			});
 		},
 
 		// 提交登录
@@ -251,9 +211,7 @@ export default {
 
 					uni.showToast({ title: "登录成功" });
 					setTimeout(() => {
-						uni.redirectTo({
-							url: "/pages/home/home",
-						});
+						uni.navigateBack();
 					}, 1000);
 				} else {
 					uni.showToast({

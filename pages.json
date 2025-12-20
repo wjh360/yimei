@@ -79,13 +79,21 @@
 				"navigationBarTitleText": "用户列表",
 				"enablePullDownRefresh": false
 			}
+		},
+		{
+			"path": "pages/profile/index",
+			"style": {
+				"navigationBarTitleText": "用户信息",
+				"enablePullDownRefresh": false
+			}
 		}
 	],
 	"insetLoader": {
 		"config": {
-			"notify": "<u-notify ref='uNotify' message='通知' bgColor='#fa3534' />"
+			"notify": "<u-notify ref='uNotify' message='通知' bgColor='#fa3534' />",
+			"globalLoading": "<uni-loading ref='globalLoading' />"
 		},
-		"label": ["notify"],
+		"label": ["notify", "globalLoading"],
 		"rootEle": "view"
 	},
 	"globalStyle": {
@@ -95,5 +103,6 @@
 		"navigationBarTextStyle": "white",
 		"navigationStyle": "custom"
 	},
+
 	"subPackages": []
 }

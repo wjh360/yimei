@@ -14,7 +14,7 @@
 					<view class="card-header">
 						<view
 							class="icon-container"
-							:style="{ background: getGradientColor(index) }"
+							:style="{ background: gradientColors }"
 						>
 							<u-icon
 								name="bookmark-fill"
@@ -57,6 +57,9 @@
 			closeable
 			@close="closePopup"
 			:safeAreaInsetBottom="false"
+			:customStyle="{
+				width: '80%',
+			}"
 		>
 			<view class="popup-content">
 				<view class="popup-title">新增店铺 </view>
@@ -79,21 +82,13 @@ export default {
 			shops: [],
 			showAddPopup: false,
 			newShopName: "",
-			gradientColors: [
-				"linear-gradient(135deg, #FF9A9E, #FAD0C4)",
-				"linear-gradient(135deg, #A18CD1, #FBC2EB)",
-				"linear-gradient(135deg, #FCCB90, #D57EEB)",
-				"linear-gradient(135deg, #A1C4FD, #C2E9FB)",
-				"linear-gradient(135deg, #84FAB0, #8FD3F4)",
-				"linear-gradient(135deg, #F5576C, #F093FB)",
-				"linear-gradient(135deg, #4FACFE, #00F2FE)",
-				"linear-gradient(135deg, #43E97B, #38F9D7)",
-				"linear-gradient(135deg, #FA709A, #FEE140)",
-			],
-			isDev: uni.$develop,
+			gradientColors: uni.$colors[0],
+			isDev: false,
 		};
 	},
 	onShow() {
+		this.isDev = uni.$pw("isAdmin");
+
 		this.getShopList();
 	},
 	onLoad() {},
@@ -144,7 +139,37 @@ export default {
 		},
 		showAddForm() {
 			this.newShopName = "";
-			this.showAddPopup = true;
+			// this.showAddPopup = true;
+			uni.showModal({
+				title: "新增店铺",
+				editable: true,
+				content: "",
+				placeholderText: "请输入店铺名称",
+				success: async (res) => {
+					if (res.confirm && res.content) {
+						uni.showLoading({ title: "保存中..." });
+
+						if (!res.content.trim()) {
+							uni.hideLoading();
+							return;
+						}
+
+						try {
+							this.newShopName = res.content;
+							await this.addShop();
+						} catch (err) {
+							// 恢复原来的昵称
+
+							uni.showToast({
+								title: "修改失败",
+								icon: "none",
+							});
+						} finally {
+							uni.hideLoading();
+						}
+					}
+				},
+			});
 		},
 		addShop() {
 			if (!this.newShopName.trim()) {
@@ -237,9 +262,6 @@ export default {
 						icon: "none",
 					});
 				});
-		},
-		getGradientColor(index) {
-			return this.gradientColors[index % this.gradientColors.length];
 		},
 	},
 };

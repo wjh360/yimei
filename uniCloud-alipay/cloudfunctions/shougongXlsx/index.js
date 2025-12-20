@@ -1,4 +1,4 @@
-const ExcelJS = require('exceljs');
+const ExcelJS = require("exceljs");
 
 /**
  * 生成Excel文件数据
@@ -9,7 +9,7 @@ const ExcelJS = require('exceljs');
 async function generateExcel(rows, table) {
 	// 创建工作簿和工作表
 	const workbook = new ExcelJS.Workbook();
-	const worksheet = workbook.addWorksheet('Sheet1');
+	const worksheet = workbook.addWorksheet("Sheet1");
 
 	// 定义表头字段
 	const headers = ["时间", "店面名称", "顾客", "操作项目", "价格"];
@@ -18,10 +18,13 @@ async function generateExcel(rows, table) {
 	const dataRows = JSON.parse(JSON.stringify(rows));
 
 	// 生成文件名（使用月份信息）
-	const fileName = (table.teacher + String(dataRows[0].date).split(".")[0]) + "月份手工操作记录表";
+	const fileName =
+		table.teacher +
+		String(dataRows[0].date).split(".")[0] +
+		"月份手工操作记录表";
 
 	// 转换数据格式
-	const formattedRows = dataRows.map(el => [
+	const formattedRows = dataRows.map((el) => [
 		el.date || " ",
 		el.shopName || " ",
 		el.customer || " ",
@@ -37,18 +40,18 @@ async function generateExcel(rows, table) {
 	const titleCell = titleRow.getCell(1);
 	titleCell.font = {
 		bold: true,
-		size: 16
+		size: 16,
 	};
 	titleCell.alignment = {
-		vertical: 'middle',
-		horizontal: 'center'
+		vertical: "middle",
+		horizontal: "center",
 	};
 	titleCell.fill = {
-		type: 'pattern',
-		pattern: 'solid',
+		type: "pattern",
+		pattern: "solid",
 		fgColor: {
-			argb: 'FFD9EAD3' // 浅绿色背景
-		}
+			argb: "FFD9EAD3", // 浅绿色背景
+		},
 	};
 	titleRow.height = 40; // 设置标题行高度
 
@@ -61,42 +64,42 @@ async function generateExcel(rows, table) {
 		width: Math.max(header.length * 2, 15),
 		style: {
 			alignment: {
-				vertical: 'middle',
-				horizontal: 'center'
-			}
-		}
+				vertical: "middle",
+				horizontal: "center",
+			},
+		},
 	}));
 
 	// 设置表头行样式
 	headerRow.eachCell((cell) => {
 		cell.font = {
 			bold: true,
-			size: 12
+			size: 12,
 		};
 		cell.fill = {
-			type: 'pattern',
-			pattern: 'solid',
+			type: "pattern",
+			pattern: "solid",
 			fgColor: {
-				argb: 'FFE0E0E0' // 灰色背景
-			}
+				argb: "FFE0E0E0", // 灰色背景
+			},
 		};
 		cell.border = {
 			top: {
-				style: 'thin'
+				style: "thin",
 			},
 			left: {
-				style: 'thin'
+				style: "thin",
 			},
 			bottom: {
-				style: 'thin'
+				style: "thin",
 			},
 			right: {
-				style: 'thin'
-			}
+				style: "thin",
+			},
 		};
 		cell.alignment = {
-			vertical: 'middle',
-			horizontal: 'center'
+			vertical: "middle",
+			horizontal: "center",
 		};
 	});
 
@@ -111,21 +114,21 @@ async function generateExcel(rows, table) {
 		row.eachCell((cell) => {
 			cell.border = {
 				top: {
-					style: 'thin'
+					style: "thin",
 				},
 				left: {
-					style: 'thin'
+					style: "thin",
 				},
 				bottom: {
-					style: 'thin'
+					style: "thin",
 				},
 				right: {
-					style: 'thin'
-				}
+					style: "thin",
+				},
 			};
 			cell.alignment = {
-				vertical: 'middle',
-				horizontal: 'center'
+				vertical: "middle",
+				horizontal: "center",
 			};
 		});
 	}
@@ -153,7 +156,12 @@ async function generateExcel(rows, table) {
 				if (cellValue !== currentValue) {
 					// 如果值发生变化且有连续相同值，则合并
 					if (row - 1 > startRow) {
-						sheet.mergeCells(startRow, colIndex + 1, row - 1, colIndex + 1);
+						sheet.mergeCells(
+							startRow,
+							colIndex + 1,
+							row - 1,
+							colIndex + 1
+						);
 					}
 					startRow = row;
 					currentValue = cellValue;
@@ -162,14 +170,18 @@ async function generateExcel(rows, table) {
 
 			// 合并最后一组相同值
 			if (sheet.rowCount > startRow) {
-				sheet.mergeCells(startRow, colIndex + 1, sheet.rowCount, colIndex + 1);
+				sheet.mergeCells(
+					startRow,
+					colIndex + 1,
+					sheet.rowCount,
+					colIndex + 1
+				);
 			}
 		});
 	};
 
 	// 执行合并操作
 	mergeColumns(worksheet, headers);
-
 
 	// 导出为 Buffer
 	return await workbook.xlsx.writeBuffer();
@@ -184,10 +196,7 @@ async function generateExcel(rows, table) {
  * @returns {Object} 处理结果
  */
 exports.main = async (event, context) => {
-	const {
-		rows,
-		table
-	} = event;
+	const { rows, table } = event;
 
 	try {
 		// 生成Excel文件数据
@@ -199,37 +208,36 @@ exports.main = async (event, context) => {
 		// 上传到云存储
 		const result = await uniCloud.uploadFile({
 			cloudPath: storageFileName,
-			fileContent: buffer
+			fileContent: buffer,
 		});
 
 		// 获取文件的临时访问链接（设置10分钟有效期）
 		const fileUrl = await uniCloud.getTempFileURL({
 			fileList: [result.fileID],
-			maxAge: 600 // 10分钟 = 600秒
+			maxAge: 600, // 10分钟 = 600秒
 		});
 
-		// 十分钟后删除文件（延迟清理）
+		// 1分钟后删除文件（延迟清理）
 		setTimeout(() => {
 			uniCloud.deleteFile({
-				fileList: [result.fileID]
+				fileList: [result.fileID],
 			});
-		}, 10 * 60 * 1000);
+		}, 60 * 1000);
 
 		return {
 			code: 0,
-			message: '文件生成成功',
+			message: "文件生成成功",
 			data: {
 				filePath: result.fileID,
-				tempUrl: fileUrl.fileList[0].tempFileURL
-			}
+				tempUrl: fileUrl.fileList[0].tempFileURL,
+			},
 		};
-
 	} catch (error) {
-		console.error('文件生成失败:', error);
+		console.error("文件生成失败:", error);
 		return {
 			code: 1,
-			message: '文件生成失败',
-			error: error.message
+			message: "文件生成失败",
+			error: error.message,
 		};
 	}
 };

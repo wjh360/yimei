@@ -1,5 +1,11 @@
 <template>
 	<view class="month-picker-container">
+		<!-- 年月背景 -->
+		<view class="year-month-bg">
+			<view>{{ value2 }}</view>
+			<view>工作计划</view>
+		</view>
+
 		<u-navbar :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
 			<view slot="center">
 				<view @click="selectedYear = true"> {{ value2 }}工作安排 </view>
@@ -20,11 +26,14 @@
 								v-for="(item, index) in parsedData"
 								:key="index"
 								class="table-row"
+								:class="{
+									lastTableRow:
+										index === parsedData.length - 1,
+								}"
 							>
 								<view
-									class="table-cell"
+									class="table-cell table-cell-0"
 									:key="index + 0"
-									@tap="editField(item, index)"
 								>
 									<view class="cell-text">
 										<text class="cell-text">{{
@@ -88,10 +97,8 @@
 					:height="150"
 				></u-textarea>
 				<view class="popup-actions">
-					<u-button type="error" @click="showEditPopup = false"
-						>取消</u-button
-					>
-					<u-button type="primary" @click="saveEdit">保存</u-button>
+					<u-button @click="showEditPopup = false">取消</u-button>
+					<u-button @click="saveEdit">保存</u-button>
 				</view>
 			</view>
 		</u-popup>
@@ -135,9 +142,20 @@ export default {
 			return data.getFullYear() + "-" + (data.getMonth() + 1);
 		},
 	},
+	onShareAppMessage(res) {
+		return {
+			title: this.value2 + "工作计划",
+			path: `/pages/im/index?yearMonth=${this.value2}`,
+			imageUrl:
+				"https://env-00jxtjtj8hsd.normal.cloudstatic.cn/share.png",
+		};
+	},
 
-	onShow() {
-		// 页面显示时启动动画
+	onLoad(options) {
+		// this.initParsedData();
+		if (options.yearMonth) {
+			this.value1 = new Date(options.yearMonth + "-01") * 1;
+		}
 		this.initParsedData();
 	},
 
@@ -176,19 +194,29 @@ export default {
 						);
 						if (index !== -1) {
 							// 如果存在相同时间，则合并数据
-							this.parsedData[index].plan = item.plan;
+							this.$set(
+								this.parsedData[index],
+								"plan",
+								item.plan
+							);
 						} else {
-							this.parsedData[index] = "";
+							this.$set(this.parsedData[index], "plan", "");
 						}
 					}
+					uni.hideLoading();
+					console.log("数据", this.parsedData);
 				},
 				fail: (err) => {
+					uni.hideLoading();
 					console.error("获取数据失败:", err);
 				},
 			});
 		},
 
 		deleteRow(index) {
+			//判断当前用户是否登录
+			uni.$isLogin();
+
 			// this.parsedData.splice(index, 1);
 			console.log("删除行", index, !this.parsedData[index].plan);
 			//如果本来就是空的 retunr
@@ -215,15 +243,19 @@ export default {
 		},
 		// 年份改变事件
 		onYearChange(e) {
-			let value = new Date(e.value);
-			this.selectedYear = false;
-			setTimeout(() => {
-				// this.value1 =
-				// 	value.getFullYear() + "年" + (value.getMonth() + 1) + "月";
+			let value = new Date(e.value) * 1;
+			if (this.value1 === value) return;
+			this.value1 = value;
 
+			this.selectedYear = false;
+
+			uni.showLoading({
+				title: "切换中...",
+			});
+			setTimeout(() => {
 				//根据年份和月份获取数据
-				this.selectMonth(value.getFullYear(), value.getMonth() + 1);
-				this.getBaseData();
+				this.value1 = value;
+				this.initParsedData();
 			});
 		},
 
@@ -244,6 +276,8 @@ export default {
 		},
 
 		editField(item, index) {
+			//判断当前用户是否登录
+			uni.$isLogin();
 			this.currentEditLabel = item.time + "工作计划";
 			this.currentEditValue = item.plan;
 			this.currentEditIndex = index;
@@ -277,13 +311,54 @@ export default {
 
 <style lang="scss">
 .month-picker-container {
-	// .u-popup__content {
-	// 	width: 100% !important;
-	// }
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	// padding-bottom: 50px;
+	position: relative;
+	overflow: hidden;
+	perspective: 1000px;
+
+	// 年月背景
+	.year-month-bg {
+		position: absolute;
+		top: calc(50vh - 65px);
+		left: calc(50% - 98px);
+		font-size: 51px;
+		font-weight: bold;
+		color: #999;
+		z-index: 0;
+		transform-style: preserve-3d;
+		transform: perspective(1000px) rotateX(25deg) rotateY(15deg)
+			rotateZ(-15deg);
+		pointer-events: none;
+		-webkit-user-select: none;
+		user-select: none;
+		white-space: nowrap;
+		text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb,
+			0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0, 0, 0, 0.1),
+			0 0 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3),
+			0 3px 5px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.25),
+			0 10px 10px rgba(0, 0, 0, 0.2), 0 20px 20px rgba(0, 0, 0, 0.15);
+		animation: float 6s ease-in-out infinite;
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(2px);
+		opacity: 0.4;
+	}
+
+	@keyframes float {
+		0% {
+			transform: perspective(1000px) rotateX(25deg) rotateY(15deg)
+				rotateZ(-15deg) translateZ(0px);
+		}
+		50% {
+			transform: perspective(1000px) rotateX(25deg) rotateY(15deg)
+				rotateZ(-15deg) translateZ(30px);
+		}
+		100% {
+			transform: perspective(1000px) rotateX(25deg) rotateY(15deg)
+				rotateZ(-15deg) translateZ(0px);
+		}
+	}
 }
 
 .content {
@@ -292,6 +367,8 @@ export default {
 	flex-direction: column;
 	padding: 0 30rpx;
 	height: 100%;
+	position: relative;
+	z-index: 1;
 }
 
 .u-cell--clickable {

@@ -4,20 +4,20 @@
 			<!-- 用户信息区域 -->
 			<view class="user-section" v-if="isLoggedIn">
 				<view class="user-card">
-					<view class="user-avatar">
+					<view class="user-avatar" @click="navigateToProfile">
 						<image
 							:src="
 								userInfo.avatarUrl ||
-								'/static/default-avatar.png'
+								'https://env-00jxtjtj8hsd.normal.cloudstatic.cn/c8656bb3-c4b7-4b0b-ae03-366577e1af35.png'
 							"
 							mode="aspectFill"
 							class="avatar-img"
 						></image>
-					</view>
-					<view class="user-info">
 						<text class="user-name">{{
 							userInfo.nickName || "用户"
 						}}</text>
+					</view>
+					<view class="user-info">
 						<view class="logout-btn" @click="handleLogout"
 							>退出登录</view
 						>
@@ -33,7 +33,6 @@
 						:key="index"
 						@click="navigateTo(item.url)"
 						:class="[
-							`color-${getRealIndex(item) + 1}`,
 							{
 								animated: animateItems,
 							},
@@ -42,7 +41,15 @@
 							'animation-delay': getRealIndex(item) * 0.1 + 's',
 						}"
 					>
-						<view class="menu-icon-container">
+						<view
+							class="menu-icon-container"
+							:style="{
+								background:
+									gradientColors[
+										index % gradientColors.length
+									],
+							}"
+						>
 							<u-icon
 								:name="item.icon"
 								size="30"
@@ -72,7 +79,7 @@ export default {
 	data() {
 		return {
 			animateItems: false,
-			isLoggedIn: false,
+			isLoggedIn: !!uni.getStorageSync("token"),
 			userInfo: {},
 			refreshing: false,
 			menuItems: [
@@ -110,25 +117,18 @@ export default {
 					title: "计划",
 					icon: "list",
 					url: "im",
-					showWhen: "loggedIn",
+					showWhen: "isShowJiHua",
 				},
 				{
 					title: "用户",
 					icon: "account-fill",
 					url: "userList",
-					showWhen: "dev",
+					showWhen: "isAdmin",
 				},
 			],
+			gradientColors: uni.$colors,
 		};
 	},
-
-	computed: {
-		// 根据登录状态过滤菜单项
-		filteredMenuItems() {
-			return this.menuItems;
-		},
-	},
-
 	onShow() {
 		// 检查登录状态
 		this.checkLoginStatus();
@@ -152,23 +152,6 @@ export default {
 			this.userInfo = userInfo || {};
 			this.fetchUserInfo();
 		},
-
-		// 下拉刷新
-		onRefresh() {
-			this.refreshing = true;
-
-			// 如果已登录，刷新用户信息
-			if (this.isLoggedIn) {
-				this.fetchUserInfo();
-			} else {
-				// 未登录状态，直接结束刷新
-
-				setTimeout(() => {
-					this.refreshing = false;
-				}, 500);
-			}
-		},
-
 		// 获取用户信息
 		async fetchUserInfo() {
 			try {
@@ -213,18 +196,9 @@ export default {
 
 		// 判断菜单项是否应该显示
 		shouldShowItem(item) {
-			if (
-				item.showWhen === "loggedIn" &&
-				(!this.isLoggedIn || !this.userInfo?.isShowJiHua)
-			) {
-				return false;
-			}
+			if (!item.showWhen) return true;
 
-			if (item.showWhen === "dev") {
-				return uni.$develop;
-			}
-
-			return true;
+			return this.userInfo?.[item.showWhen];
 		},
 
 		// 获取菜单项在过滤后的实际索引
@@ -244,6 +218,11 @@ export default {
 		// 导航到指定页面
 		navigateTo(url) {
 			uni.navigateTo({ url: `/pages/${url}/index` });
+		},
+
+		// 导航到个人信息页面
+		navigateToProfile() {
+			uni.navigateTo({ url: "/pages/profile/index" });
 		},
 
 		// 退出登录
@@ -280,45 +259,56 @@ export default {
 	width: 90%;
 	margin: 10rpx auto;
 	animation: fadeInDown 0.8s ease-out;
+
+	user-select: none;
+	white-space: nowrap;
 }
 
 .user-card {
 	border-radius: 20rpx;
 	padding: 30rpx;
 	display: flex;
-	flex-direction: row;
+	justify-content: space-around;
 	align-items: center;
 	box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.1);
 	backdrop-filter: blur(10px);
 	border: 1px solid rgba(255, 255, 255, 0.3);
+	user-select: none;
 }
 
 .user-avatar {
-	width: 100rpx;
-	height: 100rpx;
-	border-radius: 50%;
 	overflow: hidden;
-	margin-right: 30rpx;
-	border: 4rpx solid rgba(102, 126, 234, 0.2);
+
+	cursor: pointer;
+	user-select: none;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 }
 
 .avatar-img {
 	width: 100%;
 	height: 100%;
-}
-
-.user-info {
-	flex: 1;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
+	width: 100rpx;
+	height: 100rpx;
+	border-radius: 50%;
+	margin-right: 30rpx;
+	border: 4rpx solid rgba(102, 126, 234, 0.2);
+	overflow: hidden;
 }
 
 .user-name {
 	font-size: 32rpx;
 	font-weight: bold;
 	color: #333;
+	cursor: pointer;
+	user-select: none;
 }
 
 .logout-btn {
@@ -329,7 +319,7 @@ export default {
 	font-size: 24rpx;
 	box-shadow: 0 4rpx 8rpx rgba(245, 108, 108, 0.3);
 	transition: all 0.3s ease;
-
+	user-select: none;
 	&:active {
 		transform: translateY(2rpx);
 		box-shadow: 0 2rpx 4rpx rgba(245, 108, 108, 0.2);

@@ -11,6 +11,7 @@
 			@monthSwitch="onMonthSwitch"
 			:date="date"
 			:edit="isEdit"
+			:clearDate="true"
 		/>
 
 		<view class="popup-mask" v-if="showPopup" @tap="closePopup">
@@ -244,6 +245,10 @@ export default {
 	},
 
 	methods: {
+		formatterDate(date) {
+			if (date) return date.replace(/-/g, "-");
+			else return date;
+		},
 		initCalendar() {
 			const now = new Date();
 			const year = now.getFullYear();
@@ -261,7 +266,9 @@ export default {
 				month: prevMonth,
 			};
 
-			this.date = `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
+			this.date = this.formatterDate(
+				`${prevYear}-${String(prevMonth).padStart(2, "0")}`
+			);
 		},
 
 		onChange(e) {
@@ -288,7 +295,9 @@ export default {
 				year: e.year,
 				month: e.month,
 			};
-			this.date = `${e.year}-${String(e.month).padStart(2, "0")}`;
+			this.date = this.formatterDate(
+				`${e.year}-${String(e.month).padStart(2, "0")}`
+			);
 			this.submitData();
 		},
 
@@ -334,7 +343,9 @@ export default {
 			const { year, month } = this.currentMonthInfo;
 			const currentMonthSelected = this.selected.filter((item) =>
 				item.date.startsWith(
-					`${year}-${String(month).padStart(2, "0")}`
+					this.formatterDate(
+						`${year}-${String(month).padStart(2, "0")}`
+					)
 				)
 			);
 
@@ -430,7 +441,9 @@ export default {
 				year: prevYear,
 				month: prevMonth,
 			};
-			this.date = `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
+			this.date = this.formatterDate(
+				`${prevYear}-${String(prevMonth).padStart(2, "0")}`
+			);
 			this.submitData();
 		},
 	},

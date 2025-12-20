@@ -18,10 +18,17 @@ exports.main = async (event, context) => {
 					};
 				}
 				let res = await collection.get();
+
+				console.log()
+				let lasetItemIdx  = res.data[res.data.length-1].idx
+
+				let idx =
+				 lasetItemIdx >  res.data.length ? lasetItemIdx :  res.data.length
+				console.log("判断最后一个idx datalength",lasetItemIdx,res.data.length )
 				// 添加创建时间
 				const addData = {
 					name: name,
-					idx: res.data.length + 1,
+					idx: idx+ 1,
 				};
 
 				//判断店铺是否已存在

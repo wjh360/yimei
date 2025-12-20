@@ -22,7 +22,7 @@
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	grid-gap: 20px;
-	padding: 10px;
+	padding: 20px;
 }
 
 .menu-item {
@@ -68,38 +68,6 @@
 	&:hover::before {
 		opacity: 0.7;
 	}
-}
-
-// 菜单项渐变色
-.color-1 .menu-icon-container {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.color-2 .menu-icon-container {
-	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.color-3 .menu-icon-container {
-	background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.color-4 .menu-icon-container {
-	background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-}
-
-.color-5 .menu-icon-container {
-	background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-}
-
-.color-6 .menu-icon-container {
-	background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-}
-.color-7 .menu-icon-container {
-	background: linear-gradient(135deg, #66eaa3 0%, #5c6907 100%);
-}
-
-.color-8 .menu-icon-container {
-	background: linear-gradient(135deg, #0b9811 0%, #00f2fe 100%);
 }
 
 .menu-text {

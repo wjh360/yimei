@@ -2,12 +2,10 @@ import Vue from "vue";
 import App from "./App";
 import uView from "uview-ui";
 import store from "./store";
-
 import "./static/utils/socket.js"; // 引入 socket.js 文件
 Vue.config.productionTip = false;
 
 Vue.use(uView);
-
 // 初始化 uniCloud
 const db = uniCloud.database();
 Vue.prototype.$db = db;

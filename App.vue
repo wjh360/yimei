@@ -73,33 +73,37 @@ export default {
 			uni.getStorageSync("randomId") || generateBusinessId("wxghtId_");
 		uni.setStorageSync("randomId", randomId);
 		console.log("当前全局唯一标识：", randomId);
+		// 获取推送客户端标识并上传到服务器
 
 		uni.getPushClientId({
 			success: (res) => {
 				const cid = res.cid;
 				console.log("客户端推送标识:", cid);
-				uni.setStorageSync("cid", cid);
-				// 将cid上传到你的后端服务器
-				uniCloud.callFunction({
-					name: "cId",
-					data: {
-						clientId: cid,
-						// 个人小程序只能获取到匿名ID
-						userId: randomId,
-					},
-					success: (res) => {
-						console.log("CID上传成功:", res);
-					},
-					fail: (err) => {
-						console.error("CID上传失败:", err);
-					},
-				});
+				if (uni.getStorageSync("cid") !== cid) {
+					uni.setStorageSync("cid", cid);
+					// 将cid上传到你的后端服务器
+					uniCloud.callFunction({
+						name: "cId",
+						data: {
+							clientId: cid,
+							// 个人小程序只能获取到匿名ID
+							userId: randomId,
+						},
+						success: (res) => {
+							console.log("CID上传成功:", res);
+						},
+						fail: (err) => {
+							console.error("CID上传失败:", err);
+						},
+					});
+				}
 			},
 			fail: (err) => {
 				console.error("获取推送标识失败:", err);
 			},
 		});
 		// 监听推送消息（这就是小程序端的"WebSocket"）
+
 		uni.onPushMessage((res) => {
 			// 处理实时数据
 			const data = res.data;

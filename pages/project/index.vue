@@ -12,7 +12,10 @@
 					@click="navigateToProject(project)"
 				>
 					<view class="card-header">
-						<view class="icon-container">
+						<view
+							class="icon-container"
+							:style="{ background: gradientColors }"
+						>
 							<u-icon
 								name="star-fill"
 								size="28"
@@ -44,28 +47,6 @@
 
 		<!-- 悬浮添加按钮 -->
 		<view class="fab-button" v-if="isDev" @click="showAddForm"> 新增 </view>
-
-		<!-- 新增项目表单弹窗 -->
-
-		<u-popup
-			:show="showAddPopup"
-			mode="center"
-			:round="10"
-			closeable
-			@close="closePopup"
-			:safeAreaInsetBottom="false"
-		>
-			<view class="popup-content">
-				<view class="popup-title">新增项目 </view>
-
-				<u-input v-model="newProjectName" placeholder="请输入项目名称">
-				</u-input>
-				<view class="popup-actions">
-					<u-button type="primary" @click="addProject">保存</u-button>
-					<u-button type="error" @click="closePopup">取消</u-button>
-				</view>
-			</view>
-		</u-popup>
 	</view>
 </template>
 
@@ -76,21 +57,13 @@ export default {
 			projects: [],
 			showAddPopup: false,
 			newProjectName: "",
-			gradientColors: [
-				"linear-gradient(135deg, #FF9A9E, #FAD0C4)",
-				"linear-gradient(135deg, #A18CD1, #FBC2EB)",
-				"linear-gradient(135deg, #FCCB90, #D57EEB)",
-				"linear-gradient(135deg, #A1C4FD, #C2E9FB)",
-				"linear-gradient(135deg, #84FAB0, #8FD3F4)",
-				"linear-gradient(135deg, #F5576C, #F093FB)",
-				"linear-gradient(135deg, #4FACFE, #00F2FE)",
-				"linear-gradient(135deg, #43E97B, #38F9D7)",
-				"linear-gradient(135deg, #FA709A, #FEE140)",
-			],
-			isDev: uni.$develop,
+			gradientColors: uni.$colors[1],
+			isDev: false,
 		};
 	},
 	onShow() {
+		this.isDev = uni.$pw("isAdmin");
+
 		this.getProjectList();
 	},
 	onLoad() {},
@@ -144,7 +117,36 @@ export default {
 		},
 		showAddForm() {
 			this.newProjectName = "";
-			this.showAddPopup = true;
+			uni.showModal({
+				title: "新增项目",
+				editable: true,
+				content: "",
+				placeholderText: "请输入项目名称",
+				success: async (res) => {
+					if (res.confirm && res.content) {
+						uni.showLoading({ title: "保存中..." });
+
+						if (!res.content.trim()) {
+							uni.hideLoading();
+							return;
+						}
+
+						try {
+							this.newProjectName = res.content;
+							await this.addProject();
+						} catch (err) {
+							// 恢复原来的昵称
+
+							uni.showToast({
+								title: "修改失败",
+								icon: "none",
+							});
+						} finally {
+							uni.hideLoading();
+						}
+					}
+				},
+			});
 		},
 		addProject() {
 			if (!this.newProjectName.trim()) {
@@ -234,9 +236,6 @@ export default {
 						icon: "none",
 					});
 				});
-		},
-		getGradientColor(index) {
-			return this.gradientColors[index % this.gradientColors.length];
 		},
 	},
 };

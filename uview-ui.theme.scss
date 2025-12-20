@@ -102,11 +102,16 @@ page {
 }
 .popup-actions {
 	display: flex;
-	margin-top: 30rpx;
+	margin-top: 10rpx;
 	text-align: center;
 
 	.u-button {
-		width: 160rpx !important;
+		// width: 160rpx !important;
+		border: none !important;
+
+		&:first-child {
+			border-right: 1rpx solid #f0f0f0 !important;
+		}
 	}
 }
 

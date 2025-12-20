@@ -167,13 +167,14 @@
 				<view class="popup-title"
 					>{{ "编辑" + currentEditLabel }}
 				</view>
-				<u--input
+				<u-input
 					v-model="currentEditValue"
 					:placeholder="'请输入' + currentEditLabel"
-				></u--input>
+					clearable
+				/>
 				<view class="popup-actions">
-					<u-button type="primary" @click="saveEdit">保存</u-button>
-					<u-button type="error" @click="saveDel">删除</u-button>
+					<u-button @click="closePopup">取消</u-button>
+					<u-button @click="saveEdit">保存</u-button>
 				</view>
 			</view>
 		</u-popup>

@@ -171,8 +171,24 @@
 	}
 
 	&.isShouQian {
-		color: #fff;
-		background: rgba(55, 160, 3, 0.4);
+		// color: #fff;
+		// background: rgba(55, 160, 3, 0.4);
+		position: relative;
+		overflow: hidden;
+		&::after {
+			content: "售前";
+			position: absolute;
+			top: 0;
+			right: -8px;
+			width: 50rpx;
+			// height: 100%;
+			font-size: 7px;
+			background: rgba(55, 160, 3, 0.4);
+			color: #fff;
+			transform: rotateZ(28deg);
+			text-align: center;
+			line-height: 1;
+		}
 	}
 
 	&.dytell {

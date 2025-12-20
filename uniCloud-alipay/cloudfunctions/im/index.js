@@ -12,12 +12,12 @@ async function ensurePushCollections() {
 		}
 	}
 }
+const db = uniCloud.database();
 exports.main = async (event, context) => {
 	const { form, message, title, to } = event;
 
 	await ensurePushCollections(); // 确保集合存在
 
-	const db = uniCloud.database();
 	const collection = db.collection("push-clients");
 
 	if (!to) {
@@ -34,9 +34,9 @@ exports.main = async (event, context) => {
 		clients = to;
 	}
 	console.log("发送给:", to ? to : "所有人");
-
+	console.log("发送消息:", title);
 	if (!title) {
-		await imChangeData(); // 更新到数据库
+		await imChangeData(message); // 更新到数据库
 	} // 否则就是普通的消息通知
 
 	return await uniPush.sendMessage({
