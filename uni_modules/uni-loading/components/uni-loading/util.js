@@ -21,20 +21,25 @@
 function getPageTarget() {
 	const pages = getCurrentPages();
 	const page = pages[pages.length - 1];
-	return page && page.$vm && page.$vm.$refs.globalLoading;
+	return {
+		load: page && page.$vm && page.$vm.$refs.globalLoading,
+		vm: page && page.$vm,
+	};
 }
 
 uni.showLoading = function (options = {}) {
 	let globalLoading = getPageTarget();
 
-	if (globalLoading) {
-		globalLoading.showLoading({ ...options });
+	if (globalLoading.load) {
+		globalLoading.vm.postLoading = true;
+		globalLoading.load.showLoading({ ...options });
 	}
 };
 
 uni.hideLoading = function (options = {}) {
 	let globalLoading = getPageTarget();
-	if (globalLoading) {
-		globalLoading.hideLoading();
+	if (globalLoading.load) {
+		globalLoading.vm.postLoading = false;
+		globalLoading.load.hideLoading();
 	}
 };

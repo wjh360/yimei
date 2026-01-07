@@ -2,50 +2,31 @@
 	<view class="page">
 		<u-navbar title="考勤" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
 		</u-navbar>
-		<uni-calendar
-			ref="calendar"
-			:insert="true"
-			:lunar="false"
-			:selected="selected"
-			@change="onChange"
-			@monthSwitch="onMonthSwitch"
-			:date="date"
-			:edit="isEdit"
-			:clearDate="true"
-		/>
+		<uni-calendar ref="calendar" :insert="true" :lunar="false" :selected="selected" @change="onChange"
+			@monthSwitch="onMonthSwitch" :date="date" :edit="isEdit" :clearDate="true" />
 
 		<view class="popup-mask" v-if="showPopup" @tap="closePopup">
 			<view class="popup-content" @tap.stop>
 				<view class="popup-title">请选择请假类型</view>
 				<view class="leave-type-list">
-					<view
-						v-for="(label, key) in leaveTypes"
-						:key="key"
-						:class="[
-							'leave-type-item',
-							selectedLeaveType == key ? 'active' : '',
-						]"
-						@tap="selectLeaveType(key)"
-					>
+					<view v-for="(label, key) in leaveTypes" :key="key" :class="[
+						'leave-type-item',
+						selectedLeaveType == label ? 'active' : '',
+					]" @tap="selectLeaveType(label)">
 						{{ label }}
 					</view>
 				</view>
 
 				<view class="remark-section">
 					<view class="remark-label">备注</view>
-					<u--input
-						v-model="remark"
-						class="remark-input"
-						placeholder="请输入备注信息"
-					/>
+					<u--input v-model="remark" class="remark-input" placeholder="请输入备注信息" />
 				</view>
 
 				<view class="popup-actions">
-					<u-button
-						type="primary"
-						shape="circle"
-						@click="confirmSelection"
-					>
+					<u-button type="error" shape="circle" @click="closePopup">
+						取消
+					</u-button>
+					<u-button type="success" shape="circle" @click="confirmSelection">
 						确认
 					</u-button>
 				</view>
@@ -55,14 +36,9 @@
 		<view class="input-section">
 			<view class="input-group">
 				<view class="input-label">月休</view>
-				<u--input
-					v-model="baseYueXiuDay"
-					class="remark-input"
-					placeholder="请输入基础月休"
-					:disabled="!isEdit"
-				>
+				<u-input v-model="baseYueXiuDay" class="remark-input" placeholder="请输入基础月休" :disabled="!isEdit">
 					<view slot="suffix"> 天 </view>
-				</u--input>
+				</u-input>
 			</view>
 			<!-- <view class="input-group">
 				<view class="input-label">底薪</view>
@@ -127,20 +103,10 @@
 		</view>
 
 		<view class="button-container" v-if="isEdit">
-			<u-button
-				type="primary"
-				shape="circle"
-				style="width: 45%"
-				open-type="share"
-			>
+			<u-button type="primary" shape="circle" style="width: 45%" open-type="share">
 				分享
 			</u-button>
-			<u-button
-				type="warning"
-				shape="circle"
-				style="width: 45%"
-				@click="handleReset"
-			>
+			<u-button type="warning" shape="circle" style="width: 45%" @click="handleReset">
 				重置
 			</u-button>
 		</view>
@@ -234,6 +200,12 @@ export default {
 			this.selected = t.selected || [];
 
 			if (n) {
+				let month = String(n.month).padStart(2, "0");
+
+				if (month == "00") {
+					n.month = 12;
+					n.year -= 1;
+				}
 				this.date = `${n.year}-${String(n.month).padStart(2, "0")}`;
 				this.currentMonthInfo = n;
 			} else {
@@ -256,8 +228,8 @@ export default {
 			let prevYear = year;
 			let prevMonth = month;
 
-			if (prevMonth < 0) {
-				prevMonth = 11;
+			if (prevMonth == 0) {
+				prevMonth = 12;
 				prevYear = year - 1;
 			}
 
@@ -280,6 +252,7 @@ export default {
 			);
 
 			if (selectedItem) {
+				console.log(selectedItem);
 				this.remark = selectedItem.remark || "";
 				this.selectedLeaveType = selectedItem.info;
 			} else {
@@ -315,7 +288,7 @@ export default {
 		confirmSelection() {
 			const newItem = {
 				date: this.selectedDate,
-				info: this.leaveTypes[this.selectedLeaveType] || "",
+				info: this.selectedLeaveType || "",
 				remark: this.remark,
 			};
 
@@ -423,27 +396,11 @@ export default {
 		},
 
 		handleReset() {
-			const now = new Date();
-			const year = now.getFullYear();
-			const month = now.getMonth();
-			let prevYear = year;
-			let prevMonth = month;
-
-			if (prevMonth < 0) {
-				prevMonth = 11;
-				prevYear = year - 1;
-			}
 
 			this.selected = [];
 			this.baseYueXiuDay = "4";
 			this.baseMonthSalary = "5000";
-			this.currentMonthInfo = {
-				year: prevYear,
-				month: prevMonth,
-			};
-			this.date = this.formatterDate(
-				`${prevYear}-${String(prevMonth).padStart(2, "0")}`
-			);
+			this.initCalendar()
 			this.submitData();
 		},
 	},
@@ -620,6 +577,7 @@ export default {
 
 .uni-calendar__content {
 	background-color: rgba($color: #fff, $alpha: 0.4) !important;
+
 	.uni-calendar-item--disable {
 		background-color: rgba($color: #000000, $alpha: 0) !important;
 	}

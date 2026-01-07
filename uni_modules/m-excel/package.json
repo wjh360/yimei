@@ -1,0 +1,30 @@
+{
+    "id": "m-excel",
+    "name": "纯前端实现读取和导出excel xlsx csv xlsb xlsm文件",
+    "displayName": "纯前端实现读取和导出excel xlsx csv xlsb xlsm文件",
+    "version": "1.0.0",
+    "description": "纯前端实现读取和导出excel,xlsx,csv,xlsb,xlsm文件",
+    "keywords": [
+        "excel",
+        "xlsx",
+        "csv",
+        "xlsb",
+        "xlsm"
+    ],
+    "dcloudext": {
+        "category": [
+            "JS SDK",
+            "通用 SDK"
+        ],
+        "contact": {
+            "qq": ""
+        },
+        "declaration": {
+            "ads": "无",
+            "data": "无",
+            "permissions": "无"
+        },
+        "npmurl": ""
+    },
+    "repository": ""
+}

@@ -5,69 +5,45 @@
 			<view class="user-section" v-if="isLoggedIn">
 				<view class="user-card">
 					<view class="user-avatar" @click="navigateToProfile">
-						<image
-							:src="
-								userInfo.avatarUrl ||
-								'https://env-00jxtjtj8hsd.normal.cloudstatic.cn/c8656bb3-c4b7-4b0b-ae03-366577e1af35.png'
-							"
-							mode="aspectFill"
-							class="avatar-img"
-						></image>
+						<image :src="userInfo.avatarUrl ||
+							'https://env-00jxtjtj8hsd.normal.cloudstatic.cn/c8656bb3-c4b7-4b0b-ae03-366577e1af35.png'
+							" mode="aspectFill" class="avatar-img"></image>
 						<text class="user-name">{{
 							userInfo.nickName || "用户"
 						}}</text>
 					</view>
 					<view class="user-info">
-						<view class="logout-btn" @click="handleLogout"
-							>退出登录</view
-						>
+						<view class="logout-btn" @click="handleLogout">退出登录</view>
 					</view>
 				</view>
 			</view>
 
 			<view class="menu-grid">
 				<template v-for="(item, index) in menuItems">
-					<view
-						v-if="shouldShowItem(item)"
-						class="menu-item"
-						:key="index"
-						@click="navigateTo(item.url)"
-						:class="[
-							{
-								animated: animateItems,
-							},
-						]"
-						:style="{
-							'animation-delay': getRealIndex(item) * 0.1 + 's',
-						}"
-					>
-						<view
-							class="menu-icon-container"
-							:style="{
-								background:
-									gradientColors[
-										index % gradientColors.length
-									],
-							}"
-						>
-							<u-icon
-								:name="item.icon"
-								size="30"
-								color="#ffffff"
-							></u-icon>
+					<view v-if="shouldShowItem(item)" class="menu-item" :key="index" @click="navigateTo(item)" :class="[
+						{
+							animated: animateItems,
+						},
+					]" :style="{
+						'animation-delay': getRealIndex(item) * 0.1 + 's',
+					}">
+						<view class="menu-icon-container" :style="{
+							background:
+								gradientColors[
+								index % gradientColors.length
+								],
+						}">
+							<u-icon :name="item.icon" size="30" color="#ffffff"></u-icon>
 							<text class="menu-text">{{ item.title }}</text>
 						</view>
 					</view>
 				</template>
 			</view>
 		</scroll-view>
+		<!-- <u-button type="primary" @click="test">提交</u-button> -->
 
 		<!-- 悬浮登录按钮 -->
-		<view
-			class="floating-login-btn"
-			v-if="!isLoggedIn"
-			@click="navigateTo('login')"
-		>
+		<view class="floating-login-btn" v-if="!isLoggedIn" @click="navigateTo({ url: 'login' })">
 			<u-icon name="account" color="#fff" size="25"></u-icon>
 			<text>登录</text>
 		</view>
@@ -75,6 +51,7 @@
 </template>
 
 <script>
+import m_excel from "@/uni_modules/m-excel/m-excel/js_sdk/index.js"
 export default {
 	data() {
 		return {
@@ -125,6 +102,11 @@ export default {
 					url: "userList",
 					showWhen: "isAdmin",
 				},
+				{
+					title: "修改文件",
+					icon: "setting",
+					url: "",
+				},
 			],
 			gradientColors: uni.$colors,
 		};
@@ -140,6 +122,9 @@ export default {
 	},
 
 	methods: {
+		test() {
+			wx.openChatTool();
+		},
 		clearLoadData() {
 			this.fetchUserInfo();
 		},
@@ -216,8 +201,22 @@ export default {
 		},
 
 		// 导航到指定页面
-		navigateTo(url) {
-			uni.navigateTo({ url: `/pages/${url}/index` });
+		navigateTo(item) {
+			if (!item.url) {
+				return this.otherOpteration(item);
+			}
+
+			uni.navigateTo({ url: `/pages/${item.url}/index` });
+		},
+		otherOpteration(item) {
+			if (item.title === '修改文件') {
+				m_excel.read().then(res => {
+					// console.log(res);
+					uni.setStorageSync('excelData', res.data)
+					uni.navigateTo({ url: `/pages/${res.url}/index?duqu=1&${res.otherData}` });
+
+				})
+			}
 		},
 
 		// 导航到个人信息页面
@@ -320,6 +319,7 @@ export default {
 	box-shadow: 0 4rpx 8rpx rgba(245, 108, 108, 0.3);
 	transition: all 0.3s ease;
 	user-select: none;
+
 	&:active {
 		transform: translateY(2rpx);
 		box-shadow: 0 2rpx 4rpx rgba(245, 108, 108, 0.2);
@@ -331,6 +331,7 @@ export default {
 		opacity: 0;
 		transform: translateY(-30px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);

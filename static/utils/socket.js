@@ -118,7 +118,7 @@ uni.$colors = [
 	"linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
 	"linear-gradient(135deg, #66eaa3 0%, #5c6907 100%)",
 	"linear-gradient(135deg, #0b9811 0%, #00f2fe 100%)",
-	"linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)",
+	"linear-gradient(135deg, #e652bd 0%, #a6c1ee 100%)",
 	"linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%)",
 	"linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)",
 	"linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)",

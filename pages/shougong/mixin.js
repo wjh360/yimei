@@ -50,7 +50,6 @@ export default {
 					}
 				}
 			}),
-				console.log(n, e),
 				(this.parsedData = n);
 		},
 		findMaxCount(e, t, n) {

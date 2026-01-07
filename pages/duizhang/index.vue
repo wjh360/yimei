@@ -3,47 +3,24 @@
 		<u-navbar title="对账单" :bgColor="`rgba(0,0,0,0)`" :autoBack="true">
 		</u-navbar>
 		<scroll-view :scroll-y="parsedData.length > 0" style="height: 100%">
-			<view
-				class="input-section input-section2"
-				style="margin-top: 20rpx"
-			>
+			<view class="input-section input-section2" style="margin-top: 20rpx">
 				<view class="half-width">
 					<view class="input-title">导师</view>
-					<u-input
-						v-model="teacher"
-						maxlength="10"
-						placeholder="请输入导师"
-					></u-input>
+					<u-input v-model="teacher" maxlength="10" placeholder="请输入导师"></u-input>
 				</view>
 				<view class="half-width">
 					<view class="input-title">操作</view>
-					<u-input
-						v-model="operation"
-						maxlength="10"
-						placeholder="请输入操作"
-					></u-input>
+					<u-input v-model="operation" maxlength="10" placeholder="请输入操作"></u-input>
 				</view>
 			</view>
 
 			<view class="input-section">
 				<view class="input-title">请输入文本数据</view>
-				<u-textarea
-					v-model="inputText"
-					height="200rpx"
-					maxlength="100000"
-					placeholder="请输入需要解析的文本数据，每行一条记录"
-					:show-confirm-bar="false"
-					confirm-type="换行"
-				>
+				<u-textarea v-model="inputText" height="200rpx" maxlength="100000" placeholder="请输入需要解析的文本数据，每行一条记录"
+					:show-confirm-bar="false" confirm-type="换行">
 				</u-textarea>
 
-				<view
-					v-if="inputText"
-					class="parse-btn"
-					type="primary"
-					@click="parseData"
-					>解析数据</view
-				>
+				<view v-if="inputText" class="parse-btn" type="primary" @click="parseData">解析数据</view>
 			</view>
 
 			<view class="data-section" v-if="parsedData.length > 0">
@@ -68,28 +45,19 @@
 						<text class="header-item full-flex">管理</text>
 					</view>
 
-					<view
-						v-for="(item, index) in parsedData"
-						:key="index"
-						:class="[
-							'table-row',
-							index % 2 !== 0 ? 'highlight-row' : '',
-							{
-								isErrName:
-									item.customer && item.customer.length > 3,
-							},
-						]"
-					>
-						<view
-							class="table-cell"
-							v-for="edItem in edList"
-							:key="edItem"
-							@tap="editField(item, edItem, index)"
-							:class="[filterRefund(item[edItem], edItem)]"
-						>
+					<view v-for="(item, index) in parsedData" :key="index" :class="[
+						'table-row',
+						index % 2 !== 0 ? 'highlight-row' : '',
+						{
+							isErrName:
+								item.customer && item.customer.length > 3,
+						},
+					]">
+						<view class="table-cell" v-for="edItem in edList" :key="edItem"
+							@tap="editField(item, edItem, index)" :class="[filterRefund(item[edItem], edItem)]">
 							<view class="cell-text">
 								{{
-									parseFloat(item[edItem])
+									parseFloat(item[edItem]) && edItem != 'date'
 										? parseFloat(item[edItem])
 										: item[edItem] || "-"
 								}}
@@ -97,39 +65,22 @@
 						</view>
 
 						<view class="table-cell delete-cell">
-							<view
-								class="danger cell-text"
-								@click="deleteRow(index)"
-								>删除</view
-							>
+							<view class="danger cell-text" @click="deleteRow(index)">删除</view>
 						</view>
 					</view>
 				</view>
 			</view>
 
-			<view
-				class="input-section flex-layout"
-				v-if="parsedData.length > 0"
-			>
+			<view class="input-section flex-layout" v-if="parsedData.length > 0">
 				<view class="flex-1 flex2">
 					<view class="input-title title-small">总业绩</view>
-					<u-textarea
-						v-model="allYeji"
-						:auto-height="true"
-						maxlength="1000"
-						placeholder="请输入总业绩"
-					>
+					<u-textarea v-model="allYeji" :auto-height="true" maxlength="1000" placeholder="请输入总业绩">
 					</u-textarea>
 				</view>
 
 				<view class="flex-1 margin-left-10 flex2">
 					<view class="input-title title-small">总回款</view>
-					<u-textarea
-						v-model="allHuiKuan"
-						:auto-height="true"
-						maxlength="1000"
-						placeholder="请输入总回款"
-					>
+					<u-textarea v-model="allHuiKuan" :auto-height="true" maxlength="1000" placeholder="请输入总回款">
 					</u-textarea>
 				</view>
 			</view>
@@ -137,22 +88,14 @@
 			<view class="input-section" v-if="parsedData.length > 0">
 				<view class="flex2">
 					<view class="input-title">备注</view>
-					<u-textarea
-						v-model="remark"
-						:auto-height="true"
-						maxlength="1000"
-						placeholder="请输入备注"
-					>
+					<u-textarea v-model="remark" :auto-height="true" maxlength="1000" placeholder="请输入备注">
 					</u-textarea>
 				</view>
 			</view>
 			<view class="scrollBoxAfter" v-if="parsedData.length > 0"></view>
 		</scroll-view>
-		<view
-			class="floating-btn postBtn"
-			v-if="parsedData.length > 0 && !tempFilePath"
-			@click="submitData"
-		>
+		<view class="floating-btn postBtn" v-if="parsedData.length > 0 && !tempFilePath && !postLoading"
+			@click="submitData">
 			生成
 		</view>
 		<view class="floating-buttons">
@@ -166,50 +109,26 @@
 			</template>
 		</view>
 
-		<u-popup
-			:show="showEditPopup"
-			mode="center"
-			:round="10"
-			closeable
-			@close="closePopup"
-			:safeAreaInsetBottom="false"
-			:customStyle="{
+		<u-popup :show="showEditPopup" mode="center" :round="10" closeable @close="closePopup"
+			:safeAreaInsetBottom="false" :customStyle="{
 				width: '80%',
-			}"
-		>
+			}">
 			<view class="popup-content">
-				<view class="popup-title"
-					>{{ "编辑" + currentEditLabel }}
+				<view class="popup-title">{{ "编辑" + currentEditLabel }}
 				</view>
-				<view
-					v-if="currentEditField == 'shopName'"
-					style="
+				<view v-if="currentEditField == 'shopName'" style="
 						text-align: center;
 						font-size: 12px;
 						color: #f29100;
 						margin-bottom: 20rpx;
-					"
-					>(保存新的店铺名称会自动重新解析数据)</view
-				>
-				<view
-					class="current-field-info"
-					v-if="baseArr[currentEditIndex]"
-				>
+					">(保存新的店铺名称会自动重新解析数据)</view>
+				<view class="current-field-info" v-if="baseArr[currentEditIndex]">
 					<text>
 						{{ baseArr[currentEditIndex] }}
 					</text>
-					<view
-						class="u-buttons"
-						style=""
-						@click="addRemark(baseArr[currentEditIndex])"
-						>加到备注</view
-					>
+					<view class="u-buttons" style="" @click="addRemark(baseArr[currentEditIndex])">加到备注</view>
 				</view>
-				<u-input
-					v-model="currentEditValue"
-					:placeholder="'请输入' + currentEditLabel"
-					clearable
-				>
+				<u-input v-model="currentEditValue" :placeholder="'请输入' + currentEditLabel" clearable>
 				</u-input>
 				<view class="popup-actions">
 					<u-button @click="closePopup">取消</u-button>
@@ -253,13 +172,30 @@ export default {
 				"refund",
 			],
 			barBgColor: 0,
+			postLoading: false,
 		};
 	},
 	onShow() {
-		this.getShopList();
-		this.getProjectList();
-		this.teacher = uni.getStorageSync("teacher") || "贠清";
-		this.operation = uni.getStorageSync("operation") || "薇薇";
+
+	},
+	onLoad(option) {
+
+
+		if (option.duqu == 1) {
+			this.inputText = uni.getStorageSync("excelData")
+			this.teacher = option.teacher
+			this.operation = option.operation
+
+			this.getShopList(true);
+		} else {
+
+			this.teacher = uni.getStorageSync("teacher") || "贠清";
+			this.operation = uni.getStorageSync("operation") || "薇薇";
+
+			setTimeout(() => {
+				this.getText();
+			}, 200);
+		}
 	},
 	watch: {
 		parsedData: {
@@ -281,6 +217,49 @@ export default {
 		console.log("scrollTop", scrollTop);
 	},
 	methods: {
+		async getText() {
+			try {
+				// 平台检查
+				if (this.inputText) return;
+
+				const res = await uni.getClipboardData({
+					showToast: false,
+				});
+				const content =
+					res && res[res.length - 1].data
+						? res[res.length - 1].data.trim()
+						: "";
+
+				if (content && content != this.inputText) {
+					uni.showModal({
+						title: "检测到剪贴板内容",
+						content: "是否解析剪贴板中的文本数据？",
+						success: (res) => {
+							if (res.confirm) {
+								this.inputText = content;
+								this.getShopList(true);
+							}
+						},
+					});
+				} else {
+					this.getShopList();
+				}
+			} catch (error) { }
+		},
+		jieXi() {
+			this.parsedData = [];
+			this.tempFilePath = "";
+
+			// 调用解析方法
+			this.setInit(this.inputText);
+
+			if (this.parsedData.length) {
+				uni.showToast({
+					title: "解析完成",
+					icon: "success",
+				});
+			}
+		},
 		scrollFn(w) {
 			console.log("w", w);
 		},
@@ -295,7 +274,7 @@ export default {
 
 			if (value.length > 3) return "dytell";
 		},
-		getShopList() {
+		getShopList(isJieXi) {
 			// 这里应该调用云函数获取店铺列表
 			// 在uni-app中，可能需要使用uniCloud或其他方式
 			uniCloud
@@ -307,9 +286,11 @@ export default {
 				})
 				.then((res) => {
 					this.shopNames = res.result.data || [];
+					this.getProjectList(isJieXi);
 				});
+
 		},
-		getProjectList() {
+		getProjectList(isJieXi) {
 			// 这里应该调用云函数获取项目列表
 			uniCloud
 				.callFunction({
@@ -320,6 +301,7 @@ export default {
 				})
 				.then((res) => {
 					this.projects = res.result.data || [];
+					if (isJieXi) this.jieXi();
 				});
 		},
 		parseData() {
@@ -335,19 +317,7 @@ export default {
 							});
 							return;
 						}
-
-						this.parsedData = [];
-						this.tempFilePath = "";
-
-						// 调用解析方法
-						this.setInit(this.inputText);
-
-						if (this.parsedData.length) {
-							uni.showToast({
-								title: "解析完成",
-								icon: "success",
-							});
-						}
+						this.jieXi();
 					}
 				},
 			});
@@ -575,7 +545,7 @@ export default {
 				fileName:
 					this.parsedData[0].date.split(".")[0] +
 					"月份账目报表【工资情况】.xlsx",
-				success: function () {},
+				success: function () { },
 				fail: console.error,
 			});
 

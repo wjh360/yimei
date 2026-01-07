@@ -24,6 +24,7 @@ export default {
 					processedLines.splice(index, 1));
 			}
 			this.baseArr = [...processedLines];
+
 			try {
 				this.filterTableData(processedLines);
 			} catch (error) {
